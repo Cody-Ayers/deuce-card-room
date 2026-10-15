@@ -383,6 +383,26 @@ body.night::after{content:"";position:fixed;inset:0;pointer-events:none;backgrou
 .z.num{font-size:clamp(16px,5vw,22px);min-height:clamp(50px,8vh,76px);padding-top:14px}
 .z.w6{grid-column:span 6}.z.w3{grid-column:span 3}.z.w4{grid-column:span 4}.z.w2{grid-column:span 2}
 .lay.props{grid-template-columns:repeat(4,minmax(0,1fr))}
+/* full casino layout, positioned like the real felt */
+.real{position:relative;width:100%;aspect-ratio:100/58;container-type:inline-size;margin-top:4px}
+.real .z{position:absolute;min-height:0;padding:1px 2px;border-radius:3px;border-width:1.5px;gap:0;line-height:1.05;font-size:max(9px,2.5cqw);background:rgba(0,0,0,.06)}
+.real .z small{font-size:max(7px,1.55cqw);letter-spacing:0;line-height:1.1}
+.real .z.big{font-size:max(12px,3.6cqw)}
+.real .z.num{padding:0;font-size:max(12px,3.5cqw)}
+.real .z.num small{font-family:var(--f-num)}
+.real .fld{display:flex;gap:max(4px,1.2cqw);align-items:center;font-family:var(--f-num);font-size:max(10px,2.6cqw)}
+.real .fld i{font-style:normal;border:1.5px solid currentColor;border-radius:50%;width:max(16px,4cqw);height:max(16px,4cqw);display:grid;place-items:center}
+.real .vert{writing-mode:vertical-rl;transform:rotate(180deg);letter-spacing:.12em}
+.real .pline{border-radius:3px 3px 3px 18px}
+.real .propbox{position:absolute;left:76.5%;top:0;width:23.5%;height:100%;border:1.5px solid rgba(246,247,248,.8);border-radius:6px;background:rgba(0,0,0,.18)}
+.real .pr{border-width:1px;background:transparent}
+.real .seven{color:#ffb3c2}
+.real .brandmark{position:absolute;left:30%;top:85%;width:45%;height:15%;display:grid;place-items:center;font-family:var(--f-display);color:rgba(246,247,248,.35);font-size:max(10px,2.6cqw);letter-spacing:.08em;pointer-events:none}
+.real .bchip,.real .cchip,.real .dchip{min-width:max(16px,3.4cqw);height:max(16px,3.4cqw);font-size:max(8px,1.6cqw);line-height:calc(max(16px,3.4cqw) - 4px);padding:0 2px;border-width:1.5px}
+.real .bchip{bottom:1px;right:1px}.real .cchip{top:1px;left:1px}.real .dchip{bottom:1px;left:1px}
+.real .z .puck{top:1px;right:1px;left:auto;transform:none;width:max(16px,3.6cqw);height:max(16px,3.6cqw);line-height:max(16px,3.6cqw);font-size:max(6px,1.3cqw)}
+.rotate-tip{text-align:center;font-size:11px;color:var(--muted);margin-top:-2px}
+@media (orientation:landscape){.rotate-tip{display:none}}
 .z.sm{font-size:13px}
 .dchip{position:absolute;bottom:3px;left:3px;min-width:26px;height:22px;padding:0 4px;border-radius:999px;font:600 10px/18px var(--f-num);border:2px dashed var(--rail-2);box-sizing:border-box;background:var(--ivory);color:var(--rail-2);text-align:center}
 .z.pass{min-height:clamp(44px,6.5vh,60px);font-size:19px}
@@ -521,13 +541,14 @@ body.night::after{content:"";position:fixed;inset:0;pointer-events:none;backgrou
 
   <!-- CRAPS -->
   <section id="cr" hidden>
-    <div class="subbar">Mode <div class="seg"><button data-mode="learn" aria-pressed="true">Learn</button><button data-mode="play" aria-pressed="false">Play</button></div><span style="width:6px"></span>Bets <div class="seg" id="crView"><button data-v="main" aria-pressed="true">Main</button><button data-v="props" aria-pressed="false">Props</button></div></div>
+    <div class="subbar">Mode <div class="seg"><button data-mode="learn" aria-pressed="true">Learn</button><button data-mode="play" aria-pressed="false">Play</button></div><span style="width:6px"></span>View <div class="seg" id="crView"><button data-v="table" aria-pressed="true">Table</button><button data-v="main" aria-pressed="false">Main</button><button data-v="props" aria-pressed="false">Props</button></div></div>
     <div class="coach" id="coach"></div>
     <div class="table crtable">
       <div class="dicebar"><div class="die" id="die1"></div><div class="die" id="die2"></div><span class="sum" id="crSum">7</span><span class="puck off" id="puckOff">OFF</span></div>
       <div class="msg" id="crMsg">Come-out roll. Bet the Pass Line to start.</div>
       <div class="say" id="crSay"></div>
-      <div class="lay" id="crLayout"></div>
+      <div class="real" id="crReal"></div>
+      <div class="lay" id="crLayout" hidden></div>
       <div class="lay props" id="crProps" hidden></div>
     </div>
     <div class="info" id="crInfo" hidden></div>
@@ -1330,15 +1351,39 @@ const LESSON=[
   {t:'Take the odds',b:'Behind the Pass Line you can add an Odds bet. It pays true odds, so the casino has no edge on it at all. That makes it the best bet in the house. Tap PASS ODDS.',hint:['odds'],todo:'Add Odds behind your Pass Line',goal:s=>s.bets.odds>0||s.point===null},
   {t:'Place a 6 or 8',b:'Place bets win whenever their number rolls before a 7, and they stay up after a win. The 6 and 8 are the best ones: 5 ways to roll each, paid at 7 to 6. Tap SIX or 8 along the top.',hint:['place6','place8'],todo:'Place the 6 or the 8',goal:s=>s.bets.place6>0||s.bets.place8>0},
   {t:'Roll it out',b:'Keep rolling until the point is made or the shooter sevens out. Under the table, every roll is explained bet by bet.',hint:['roll'],todo:'Roll until the point is made or a 7 rolls',goal:(s,c)=>s.stats.decisions>c.decisions},
-  {t:'Props and one-roll bets',b:'Tap <b>Props</b> above the table for the center bets: Hardways, Any 7, Any Craps, 2, 3, 11, 12, Horn and C &amp; E. Most are settled on the very next roll. They pay big, but they cost you more over time. The house edge is the share of each bet the casino keeps on average:<table class="edge"><tr><td>Pass Odds</td><td>0%</td></tr><tr><td>Don’t Pass</td><td>1.36%</td></tr><tr><td>Pass Line, Come</td><td>1.41%</td></tr><tr><td>Place 6 or 8</td><td>1.52%</td></tr><tr><td>Field</td><td>2.78%</td></tr><tr><td>Hard 6 or 8, Big 6 or 8</td><td>9.09%</td></tr><tr><td>Hard 4 or 10, 3, 11, Any Craps, C &amp; E</td><td>11.11%</td></tr><tr><td>Horn</td><td>12.5%</td></tr><tr><td>2 or 12</td><td>13.89%</td></tr><tr><td>Any 7</td><td>16.67%</td></tr></table>',hint:['hard6','hard8','any7','anycraps']},
+  {t:'Props and one-roll bets',b:'The proposition box on the right of the table (or <b>Props</b> in the simple view) holds the center bets: Hardways, Any 7, Any Craps, 2, 3, 11, 12, Horn and C &amp; E. Most are settled on the very next roll. They pay big, but they cost you more over time. The house edge is the share of each bet the casino keeps on average:<table class="edge"><tr><td>Pass Odds</td><td>0%</td></tr><tr><td>Don’t Pass</td><td>1.36%</td></tr><tr><td>Pass Line, Come</td><td>1.41%</td></tr><tr><td>Place 6 or 8</td><td>1.52%</td></tr><tr><td>Field</td><td>2.78%</td></tr><tr><td>Hard 6 or 8, Big 6 or 8</td><td>9.09%</td></tr><tr><td>Hard 4 or 10, 3, 11, Any Craps, C &amp; E</td><td>11.11%</td></tr><tr><td>Horn</td><td>12.5%</td></tr><tr><td>2 or 12</td><td>13.89%</td></tr><tr><td>Any 7</td><td>16.67%</td></tr></table>',hint:['hard6','hard8','any7','anycraps']},
   {t:'Come bets',b:'A Come bet is a Pass Line bet you make after the point is on. The next roll is its own come-out: 7 or 11 wins, 2, 3 or 12 loses, and anything else moves your chip onto that number. Try one when the puck is ON. Once it moves to a number, <b>Come Odds</b> adds free-of-edge odds behind it.',hint:['come','comeodds']},
   {t:'Don’t Pass',b:'Don’t Pass bets against the shooter. It wins on 2 or 3 on the come-out, pushes on 12, and loses on 7 or 11. Once a point is set, it wins if a 7 rolls first. Its house edge is a little lower than the Pass Line. <b>Lay Odds</b> go behind it, and <b>Don’t Come</b> is the same bet made after the point.',hint:['dontpass','lay','dontcome']},
   {t:'You know the game',b:'Keep practicing here with practice chips, where every roll is explained. When you’re ready, switch to Play mode to bet from your bank.',fin:true}
 ];
-function enterStep(i){CR.coachOpen=false;CR.step=Math.max(0,Math.min(LESSON.length-1,i));{const h=LESSON[CR.step].hint||[];const pr=h.filter(k=>PROPS.includes(k)).length,mn=h.filter(k=>k!=='roll'&&!PROPS.includes(k)).length;if(pr||mn)CR.view=pr>mn?'props':'main'}const s=CR.learn;CR.ctx={decisions:s.stats.decisions,rolls:s.stats.rolls};renderCR()}
+function enterStep(i){CR.coachOpen=false;CR.step=Math.max(0,Math.min(LESSON.length-1,i));{const h=LESSON[CR.step].hint||[];const pr=h.filter(k=>PROPS.includes(k)).length,mn=h.filter(k=>k!=='roll'&&!PROPS.includes(k)).length;if((pr||mn)&&CR.view!=='table')CR.view=pr>mn?'props':'main'}const s=CR.learn;CR.ctx={decisions:s.stats.decisions,rolls:s.stats.rolls};renderCR()}
 
 function zb(key,cls,label,sub){return `<button class="z ${cls}" data-bet="${key}">${label}${sub?`<small>${sub}</small>`:''}<span class="slot"></span></button>`}
-function buildLayout(){
+function rz(key,x,y,w,h,inner,cls=''){return `<button class="z ${cls}" data-bet="${key}" style="left:${x}%;top:${y}%;width:${w}%;height:${h}%">${inner}<span class="slot"></span></button>`}
+function buildReal(){
+  const nx=17,nw=(75-nx)/6;
+  let h=rz('dontcome',7,0,10,20,'DON’T<br>COME<small>bar 12</small>');
+  NUMS.forEach((n,i)=>h+=rz('place'+n,nx+i*nw,0,nw,20,`${NUMW[n]}<small>${PLACE_TXT[n]}</small>`,'num'));
+  h+=rz('come',7,20,56,16,'COME','big')+rz('comeodds',63,20,12,16,'ODDS<small>on come</small>');
+  h+=rz('field',7,36,68,20,`<span>FIELD</span><span class="fld"><i>2</i>3 · 4 · 9 · 10 · 11<i>12</i></span><small>2 pays double · 12 pays triple</small>`,'big');
+  h+=rz('dontpass',7,56,56,10,'DON’T PASS BAR <small>&nbsp;bar 12</small>')+rz('lay',63,56,12,10,'LAY<small>odds</small>');
+  h+=rz('pass',7,66,56,18,'PASS LINE','big')+rz('odds',63,66,12,18,'ODDS<small>on pass</small>');
+  h+=rz('pass',0,20,7,64,'<span class="vert">PASS LINE</span>','pline');
+  h+=rz('big6',0,84,14,16,'BIG 6<small>1 to 1</small>')+rz('big8',14,84,14,16,'BIG 8<small>1 to 1</small>');
+  h+=`<div class="brandmark">DEUCE CARD ROOM</div>`;
+  // proposition box
+  const X=76.5,W=23.5,hw=W/2;
+  h+=`<div class="propbox" aria-hidden="true"></div>`;
+  h+=rz('any7',X,0,W,10,'SEVEN<small>4 to 1</small>','pr seven');
+  h+=rz('hard6',X,10,hw,13,'3·3<small>9 to 1</small>','pr')+rz('hard10',X+hw,10,hw,13,'5·5<small>7 to 1</small>','pr');
+  h+=rz('hard8',X,23,hw,13,'4·4<small>9 to 1</small>','pr')+rz('hard4',X+hw,23,hw,13,'2·2<small>7 to 1</small>','pr');
+  h+=rz('p3',X,36,hw,13,'1·2<small>15 to 1</small>','pr')+rz('p2',X+hw,36,hw,13,'1·1<small>30 to 1</small>','pr');
+  h+=rz('p12',X,49,hw,13,'6·6<small>30 to 1</small>','pr')+rz('p11',X+hw,49,hw,13,'5·6<small>15 to 1</small>','pr');
+  h+=rz('anycraps',X,62,W,12,'ANY CRAPS<small>7 to 1</small>','pr');
+  h+=rz('horn',X,74,hw,26,'HORN<small>2·3·11·12</small>','pr')+rz('ce',X+hw,74,hw,26,'C&amp;E<small>craps · 11</small>','pr');
+  $('crReal').innerHTML=h;
+}
+function buildLayout(){buildReal();
   $('crLayout').innerHTML=NUMS.map(n=>`<button class="z num" data-bet="place${n}"><span>${NUMW[n]}</span><small>${PLACE_TXT[n]}</small><span class="slot"></span></button>`).join('')+
   zb('come','w3','COME','1 to 1')+zb('dontcome','w3','DON’T COME','bar 12')+
   `<button class="z w4" data-bet="field">FIELD<span class="fn">2 · 3 · 4 · 9 · 10 · 11 · 12</span><small>2 double · 12 triple</small><span class="slot"></span></button>`+
@@ -1505,8 +1550,8 @@ async function rollDice(){
   if(CR.mode==='learn'&&practice.v<5&&!Object.keys(s.bets).length&&!Object.keys(s.come).length){practice.v=1000;s.msg+=' · Practice chips refilled to 1,000'}
   s.rolling=false;renderCR();
 }
-['crLayout','crProps'].forEach(id=>$(id).addEventListener('click',e=>{const z=e.target.closest('[data-bet]');if(z)placeBet(z.dataset.bet)}));
-CR.view='main';
+['crReal','crLayout','crProps'].forEach(id=>$(id).addEventListener('click',e=>{const z=e.target.closest('[data-bet]');if(z)placeBet(z.dataset.bet)}));
+CR.view='table';
 document.querySelectorAll('#crView button').forEach(b=>b.onclick=()=>{CR.view=b.dataset.v;renderCR()});
 $('crRoll').onclick=rollDice;$('crClear').onclick=clearBets;
 document.querySelectorAll('#crChips button').forEach(b=>b.onclick=()=>{CR.chip=+b.dataset.c;renderCR()});
@@ -1537,11 +1582,11 @@ function renderCR(){
   $('crMsg').textContent=s.rolling?'Dice are out…':s.msg;
   const hint=learn?(LESSON[CR.step].hint||[]):[];
   document.querySelectorAll('#crView button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===CR.view));
-  $('crLayout').hidden=CR.view!=='main';$('crProps').hidden=CR.view!=='props';
-  document.querySelectorAll('.lay [data-bet]').forEach(z=>{
+  $('crReal').hidden=CR.view!=='table';$('crLayout').hidden=CR.view!=='main';$('crProps').hidden=CR.view!=='props';
+  document.querySelectorAll('#cr [data-bet]').forEach(z=>{
     const k=z.dataset.bet,n=+k.replace('place','');
     let h='';
-    if(B[k])h+=`<span class="bchip">${fmt(B[k])}</span>`;
+    if(B[k]&&!z.classList.contains('pline'))h+=`<span class="bchip">${fmt(B[k])}</span>`;
     if(k.startsWith('place')){if(s.come[n])h+=`<span class="cchip">C${fmt(s.come[n])}${s.co[n]?'+'+fmt(s.co[n]):''}</span>`;if(s.dc[n])h+=`<span class="dchip">DC${fmt(s.dc[n])}</span>`;if(s.point===n)h+='<span class="puck on">ON</span>'}
     if(k==='comeodds'){const tot=Object.values(s.co).reduce((x,v)=>x+v,0);if(tot)h+=`<span class="bchip">${fmt(tot)}</span>`}
     z.querySelector('.slot').innerHTML=h;
@@ -1556,7 +1601,7 @@ function renderCR(){
     const nm=INFO[k].name;z.setAttribute('aria-label',nm+(B[k]?`, ${B[k]} bet`:''));
   });
   $('crRoll').classList.toggle('hint',hint.includes('roll'));
-  document.querySelectorAll('#crView button').forEach(b=>b.classList.toggle('hint',b.dataset.v!==CR.view&&hint.some(k=>(b.dataset.v==='props')===PROPS.includes(k))));
+  document.querySelectorAll('#crView button').forEach(b=>b.classList.toggle('hint',CR.view!=='table'&&b.dataset.v!=='table'&&b.dataset.v!==CR.view&&hint.some(k=>(b.dataset.v==='props')===PROPS.includes(k))));
   $('crRoll').disabled=s.rolling;$('crClear').disabled=s.rolling;
   document.querySelectorAll('#crChips button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.c===CR.chip));
   const sum=o=>Object.values(o).reduce((a,v)=>a+v,0);const onTable=sum(B)+sum(s.come)+sum(s.dc)+sum(s.co);
