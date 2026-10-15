@@ -585,15 +585,230 @@ body.night::after{content:"";position:fixed;inset:0;pointer-events:none;backgrou
   <div class="row" id="refillRow" hidden><button class="btn primary" id="refill">Refill bank to 1,000</button></div>
 </div>
 
+<script id="engine">
+/* Deuce Card Room game engine: pure rules and math, no page access.
+   Loaded by the page and by the test suite (tests/engine.test.mjs). */
+window.DCR=(()=>{
+const fmt=n=>n.toLocaleString('en-US');
+function val(cards){let t=0,a=0;for(const c of cards){if(c.r===14){t+=11;a++}else t+=Math.min(c.r,10)}while(t>21&&a){t-=10;a--}return{t,soft:a>0}}
+const isBJ=cards=>cards.length===2&&val(cards).t===21;
+
+const UP=c=>c.r===14?11:Math.min(c.r,10);
+const upName=u=>u===11?'an Ace':u===10?'a 10':u===8?'an 8':'a '+u;
+function strategy(h,up,canD,canP){
+  const v=val(h.cards),c=h.cards,u=UP(up);const two=c.length===2;
+  const pr=two&&Math.min(c[0].r,10)===Math.min(c[1].r,10)?(c[0].r===14?11:Math.min(c[0].r,10)):0;
+  const R=(a,why)=>({a,why});
+  if(pr&&canP){
+    const P=why=>R('P',why);
+    if(pr===11)return P('Always split Aces. Each one is a strong start toward 21.');
+    if(pr===8)return P('Always split 8s. 16 is the worst total, and two hands starting at 8 do much better.');
+    if(pr===9&&![7,10,11].includes(u))return P(`Split 9s against ${upName(u)}. 18 is beatable here, and two 9s are strong starts.`);
+    if((pr===2||pr===3||pr===7)&&u<=7)return P(`Split ${pr}s against ${upName(u)}. The dealer is weak enough that two hands earn more.`);
+    if(pr===6&&u<=6)return P(`Split 6s against ${upName(u)}. The dealer will often bust, so get more money out.`);
+    if(pr===4&&(u===5||u===6))return P('Split 4s against a 5 or 6, the dealer’s weakest cards.');
+  }
+  if(v.soft&&v.t<21){
+    const t=v.t,D=(why,alt)=>canD?R('D',why):alt;
+    if(t>=19)return R('S',`Stand on soft ${t}. It’s already a strong total.`);
+    if(t===18){
+      if(u>=3&&u<=6)return D(`Double soft 18 against ${upName(u)}. You can’t bust with one card and the dealer is weak.`,R('S','Stand on soft 18. Doubling would be best, but you can’t double now.'));
+      if(u===2||u===7||u===8)return R('S',`Stand on soft 18 against ${upName(u)}. 18 is likely to win or tie.`);
+      return R('H',`Hit soft 18 against ${upName(u)}. The dealer will often reach 19 or more, and the Ace means you can’t bust on this card.`);
+    }
+    if(t===17&&u>=3&&u<=6)return D(`Double soft 17 against ${upName(u)}.`,R('H','Hit soft 17. You can’t bust on one card, and 17 rarely wins.'));
+    if((t===15||t===16)&&u>=4&&u<=6)return D(`Double soft ${t} against ${upName(u)}.`,R('H',`Hit soft ${t}. You can’t bust on one card.`));
+    if((t===13||t===14)&&u>=5&&u<=6)return D(`Double soft ${t} against ${upName(u)}.`,R('H',`Hit soft ${t}. You can’t bust on one card.`));
+    return R('H',`Hit soft ${t}. The Ace counts as 1 if you go over, so one more card can’t bust you.`);
+  }
+  const t=v.t;
+  if(t>=17)return R('S',`Stand on hard ${t}. Most cards would bust you.`);
+  if(t>=13)return u<=6?R('S',`Stand on ${t} against ${upName(u)}. The dealer has a good chance to bust, so don’t risk busting first.`):R('H',`Hit ${t} against ${upName(u)}. The dealer will usually make 17 or more, so standing loses more often.`);
+  if(t===12)return u>=4&&u<=6?R('S',`Stand on 12 against ${upName(u)}. Let the dealer take the bust risk.`):R('H',`Hit 12 against ${upName(u)}. Only a 10-value card busts you.`);
+  if(t===11)return u<=10?(canD?R('D',`Double 11 against ${upName(u)}. A 10-value card gives you 21.`):R('H','Hit 11. Doubling is best, but you can’t double now.')):R('H','Hit 11 against an Ace. With the dealer standing on soft 17, doubling here isn’t worth it.');
+  if(t===10)return u<=9?(canD?R('D',`Double 10 against ${upName(u)}. You’re ahead of the dealer.`):R('H','Hit 10. Doubling is best, but you can’t double now.')):R('H',`Hit 10 against ${upName(u)}. The dealer is too strong to double.`);
+  if(t===9)return u>=3&&u<=6?(canD?R('D',`Double 9 against ${upName(u)}.`):R('H','Hit 9. Doubling is best, but you can’t double now.')):R('H',`Hit 9 against ${upName(u)}.`);
+  return R('H',`Hit ${t}. You can’t bust with one more card.`);
+}
+
+const P5=15**5;
+const CAT=['High Card','Pair','Two Pair','Three of a Kind','Straight','Flush','Full House','Four of a Kind','Straight Flush'];
+function eval5(c){
+  const rs=c.map(x=>x.r).sort((a,b)=>b-a);
+  const flush=c[0].s===c[1].s&&c[1].s===c[2].s&&c[2].s===c[3].s&&c[3].s===c[4].s;
+  const cnt=new Map();for(const r of rs)cnt.set(r,(cnt.get(r)||0)+1);
+  const g=[...cnt].sort((a,b)=>b[1]-a[1]||b[0]-a[0]);
+  let sh=0;
+  if(g.length===5){if(rs[0]-rs[4]===4)sh=rs[0];else if(rs[0]===14&&rs[1]===5)sh=5}
+  let cat,tb;
+  if(sh&&flush){cat=8;tb=[sh]}
+  else if(g[0][1]===4){cat=7;tb=[g[0][0],g[1][0]]}
+  else if(g[0][1]===3&&g[1][1]===2){cat=6;tb=[g[0][0],g[1][0]]}
+  else if(flush){cat=5;tb=rs}
+  else if(sh){cat=4;tb=[sh]}
+  else if(g[0][1]===3){cat=3;tb=g.map(x=>x[0])}
+  else if(g[0][1]===2&&g[1][1]===2){cat=2;tb=g.map(x=>x[0])}
+  else if(g[0][1]===2){cat=1;tb=g.map(x=>x[0])}
+  else{cat=0;tb=rs}
+  let s=cat;for(let k=0;k<5;k++)s=s*15+(tb[k]||0);return s;
+}
+const COMB={};
+function combos(n){if(COMB[n])return COMB[n];const out=[];
+  for(let a=0;a<n;a++)for(let b=a+1;b<n;b++)for(let c=b+1;c<n;c++)for(let d=c+1;d<n;d++)for(let e=d+1;e<n;e++)out.push([a,b,c,d,e]);
+  return COMB[n]=out}
+function best(cards){let b=0;for(const k of combos(cards.length)){const s=eval5([cards[k[0]],cards[k[1]],cards[k[2]],cards[k[3]],cards[k[4]]]);if(s>b)b=s}return b}
+const catName=s=>CAT[Math.floor(s/P5)];
+
+function equity(hand,board,nOpp,iters=160){
+  const known=new Set([...hand,...board].map(c=>c.r*4+c.s));
+  const rest=[];for(let s=0;s<4;s++)for(let r=2;r<=14;r++)if(!known.has(r*4+s))rest.push({r,s});
+  const need=5-board.length;let score=0;
+  for(let it=0;it<iters;it++){
+    const take=need+nOpp*2;
+    for(let i=0;i<take;i++){const j=i+Math.floor(Math.random()*(rest.length-i));[rest[i],rest[j]]=[rest[j],rest[i]]}
+    const b=board.concat(rest.slice(0,need));
+    const me=best(hand.concat(b));let top=true,ties=0;
+    for(let o=0;o<nOpp;o++){const s=best([rest[need+o*2],rest[need+o*2+1]].concat(b));if(s>me){top=false;break}if(s===me)ties++}
+    if(top)score+=1/(ties+1);
+  }
+  return score/iters;
+}
+
+
+const PLACE_PAY={4:9/5,10:9/5,5:7/5,9:7/5,6:7/6,8:7/6};
+const PLACE_TXT={4:'9 to 5',10:'9 to 5',5:'7 to 5',9:'7 to 5',6:'7 to 6',8:'7 to 6'};
+const PLACE_EDGE={4:'6.67%',10:'6.67%',5:'4.00%',9:'4.00%',6:'1.52%',8:'1.52%'};
+const ODDS_PAY={4:2,10:2,5:1.5,9:1.5,6:1.2,8:1.2};
+const ODDS_TXT={4:'2 to 1',10:'2 to 1',5:'3 to 2',9:'3 to 2',6:'6 to 5',8:'6 to 5'};
+const ODDS_MAX={4:3,10:3,5:4,9:4,6:5,8:5};
+const NUMS=[4,5,6,8,9,10];
+const NUMW={4:'4',5:'5',6:'SIX',8:'8',9:'NINE',10:'10'};
+const LAY_PAY={4:.5,10:.5,5:2/3,9:2/3,6:5/6,8:5/6},LAY_TXT={4:'1 to 2',10:'1 to 2',5:'2 to 3',9:'2 to 3',6:'5 to 6',8:'5 to 6'};
+const HARD_PAY={4:7,6:9,8:9,10:7};
+const PROPS=['hard4','hard6','hard8','hard10','any7','anycraps','p2','p3','p11','p12','horn','ce'];
+const WAYS=[1,2,3,4,5,6,5,4,3,2,1];
+const INFO={
+  pass:{name:'Pass Line',pays:'1 to 1',edge:'1.41%',text:'Wins on 7 or 11 on the come-out and loses on 2, 3 or 12. Any other number becomes the point, and then you win if the point rolls again before a 7.'},
+  dontpass:{name:'Don’t Pass',pays:'1 to 1',edge:'1.36%',text:'The reverse of the Pass Line. Wins on 2 or 3 on the come-out, pushes on 12, loses on 7 or 11. After a point is set, it wins if a 7 rolls before the point.'},
+  odds:{name:'Pass Odds',pays:'True odds',edge:'0%',text:'Goes behind your Pass Line bet once a point is set. Pays 2 to 1 on 4 or 10, 3 to 2 on 5 or 9, and 6 to 5 on 6 or 8. Limit: 3x, 4x, 5x your line bet.'},
+  come:{name:'Come',pays:'1 to 1',edge:'1.41%',text:'A Pass Line bet made while the point is on. The next roll is its own come-out: 7 or 11 wins, 2, 3 or 12 loses, and any other number moves your chip to that number. It then wins if that number rolls before a 7.'},
+  field:{name:'Field',pays:'1 to 1 · 2 pays 2x · 12 pays 3x',edge:'2.78%',text:'A one-roll bet. Wins on 2, 3, 4, 9, 10, 11 or 12 and loses on 5, 6, 7 or 8. The losing numbers have 20 of the 36 combinations.'},
+  any7:{name:'Any 7',pays:'4 to 1',edge:'16.67%',text:'A one-roll bet that the next total is 7. The true odds are 5 to 1, so it pays short. The worst bet on the table.'},
+  anycraps:{name:'Any Craps',pays:'7 to 1',edge:'11.11%',text:'A one-roll bet that the next total is 2, 3 or 12.'}
+};
+Object.assign(INFO,{
+  dontcome:{name:'Don’t Come',pays:'1 to 1',edge:'1.36%',text:'A Don’t Pass bet made while the point is on. On its first roll 2 or 3 wins, 12 pushes, and 7 or 11 loses. Any other number moves the chip onto that number, and it then wins if a 7 rolls first.'},
+  lay:{name:'Lay Odds',pays:'1 to 2 on 4/10 · 2 to 3 on 5/9 · 5 to 6 on 6/8',edge:'0%',text:'Odds behind your Don’t Pass bet once a point is set. You risk more than you win because the 7 is the favorite, but it’s paid at true odds, so the house has no edge. Up to 6x your Don’t Pass bet.'},
+  comeodds:{name:'Come Odds',pays:'True odds',edge:'0%',text:'Odds on a Come bet that has moved to a number. Tap it and the chips go on your first Come number with room left. Pays like Pass Odds. Come Odds are off during the come-out roll, so they’re returned if a 7 rolls then.'},
+  big6:{name:'Big 6',pays:'1 to 1',edge:'9.09%',text:'Wins when a 6 rolls before a 7, works on every roll, and stays up after a win. Place 6 wins on exactly the same rolls but pays 7 to 6, so Big 6 is the worse deal.'},
+  big8:{name:'Big 8',pays:'1 to 1',edge:'9.09%',text:'Wins when an 8 rolls before a 7, works on every roll, and stays up after a win. Place 8 pays 7 to 6 on the same rolls, so it’s the better bet.'},
+  hard4:{name:'Hard 4',pays:'7 to 1',edge:'11.11%',text:'Wins if 4 rolls as 2 + 2 before a 7 or an easy 4 (1 + 3). Stays up after a win. Hardways are off on the come-out roll.'},
+  hard6:{name:'Hard 6',pays:'9 to 1',edge:'9.09%',text:'Wins if 6 rolls as 3 + 3 before a 7 or an easy 6. Stays up after a win. Off on the come-out roll.'},
+  hard8:{name:'Hard 8',pays:'9 to 1',edge:'9.09%',text:'Wins if 8 rolls as 4 + 4 before a 7 or an easy 8. Stays up after a win. Off on the come-out roll.'},
+  hard10:{name:'Hard 10',pays:'7 to 1',edge:'11.11%',text:'Wins if 10 rolls as 5 + 5 before a 7 or an easy 10 (4 + 6). Stays up after a win. Off on the come-out roll.'},
+  p2:{name:'Aces (2)',pays:'30 to 1',edge:'13.89%',text:'A one-roll bet on snake eyes. Only 1 of 36 combinations makes 2.'},
+  p3:{name:'Ace-Deuce (3)',pays:'15 to 1',edge:'11.11%',text:'A one-roll bet that the next total is 3. Two of 36 combinations make it.'},
+  p11:{name:'Yo (11)',pays:'15 to 1',edge:'11.11%',text:'A one-roll bet on eleven, called “yo” so nobody mishears “seven.”'},
+  p12:{name:'Boxcars (12)',pays:'30 to 1',edge:'13.89%',text:'A one-roll bet on 6 + 6.'},
+  horn:{name:'Horn',pays:'2 and 12: 27 to 4 · 3 and 11: 3 to 1',edge:'12.5%',text:'One bet split four ways across 2, 3, 11 and 12, so it’s sized in fours. The winning quarter is paid and the other three lose.'},
+  ce:{name:'C & E',pays:'Craps: 3 to 1 · Eleven: 7 to 1',edge:'11.11%',text:'Half on Any Craps (2, 3, 12) and half on 11, so it’s sized in twos. A one-roll bet.'}
+});
+for(const n of NUMS)INFO['place'+n]={name:'Place '+n,pays:PLACE_TXT[n],edge:PLACE_EDGE[n],text:`Wins every time ${n} rolls before a 7, and the bet stays up after it wins. Place bets are off during the come-out roll.${n===6||n===8?' Bet in multiples of 6 so it pays in full, so this table sizes these bets in sixes.':''}`};
+
+
+function settleCraps(s,a,b){
+  const t=a+b,B=s.bets,pt=s.point,L=[];let back=0,net=0;
+  const win=(name,w,why)=>{L.push({c:'win',t:`${name} wins ${fmt(w)}`,why});net+=w};
+  const lose=(name,amt,why)=>{L.push({c:'lose',t:`${name} loses ${fmt(amt)}`,why});net-=amt};
+  const info=(t,why)=>L.push({c:'info',t,why});
+  if(B.field){if([2,3,4,9,10,11,12].includes(t)){const m=t===2?2:t===12?3:1,w=B.field*m;win('Field',w,t===2?'2 pays double in the Field':t===12?'12 pays triple in the Field':`${t} is a Field number`);back+=B.field+w}else lose('Field',B.field,`${t} is one of the Field’s losing numbers (5, 6, 7, 8)`);delete B.field}
+  if(B.any7){if(t===7){const w=B.any7*4;win('Any 7',w,'Any 7 pays 4 to 1');back+=B.any7+w}else lose('Any 7',B.any7,'Any 7 only wins on a 7');delete B.any7}
+  if(B.anycraps){if([2,3,12].includes(t)){const w=B.anycraps*7;win('Any Craps',w,'Any Craps pays 7 to 1');back+=B.anycraps+w}else lose('Any Craps',B.anycraps,'Any Craps only wins on 2, 3 or 12');delete B.anycraps}
+  for(const n of Object.keys(s.come).map(Number)){
+    const od=s.co[n]||0;
+    if(t===n){const w=s.come[n];win(`Come ${n}`,w,`${n} rolled before a 7`);back+=2*w;delete s.come[n];
+      if(od){if(pt!==null){const ow=Math.floor(od*ODDS_PAY[n]);win(`Come Odds ${n}`,ow,`pays true odds of ${ODDS_TXT[n]}`);back+=od+ow}else{info(`Come Odds ${n} returned`,'Come odds are off on the come-out roll');back+=od}delete s.co[n]}}
+    else if(t===7){lose(`Come ${n}`,s.come[n],`a 7 rolled before ${n}`);delete s.come[n];
+      if(od){if(pt!==null)lose(`Come Odds ${n}`,od,'odds go with the Come bet');else{info(`Come Odds ${n} returned`,'Come odds are off on the come-out roll');back+=od}delete s.co[n]}}
+  }
+  for(const n of Object.keys(s.dc).map(Number)){
+    if(t===7){const w=s.dc[n];win(`Don’t Come ${n}`,w,`a 7 rolled before ${n}`);back+=2*w;delete s.dc[n]}
+    else if(t===n){lose(`Don’t Come ${n}`,s.dc[n],`${n} rolled before a 7`);delete s.dc[n]}
+  }
+  if(B.dontcome){
+    if(t===2||t===3){win('Don’t Come',B.dontcome,'2 or 3 wins a new Don’t Come bet');back+=2*B.dontcome;delete B.dontcome}
+    else if(t===12)info('Don’t Come pushes','12 is barred; the bet stays for the next roll');
+    else if(t===7||t===11){lose('Don’t Come',B.dontcome,'7 or 11 loses a new Don’t Come bet');delete B.dontcome}
+    else{s.dc[t]=(s.dc[t]||0)+B.dontcome;info(`Don’t Come moves to ${t}`,`It now wins if a 7 rolls before ${t}`);delete B.dontcome}
+  }
+  for(const n of [6,8]){const k='big'+n;if(!B[k])continue;
+    if(t===n){win(`Big ${n}`,B[k],'pays even money; the bet stays up');back+=B[k]}
+    else if(t===7){lose(`Big ${n}`,B[k],`a 7 rolled before ${n}`);delete B[k]}}
+  for(const n of [4,6,8,10]){const k='hard'+n;if(!B[k])continue;
+    if(pt===null){if(t===n||t===7)info(`Hard ${n} is off`,'Hardways don’t work on the come-out roll');continue}
+    if(t===n&&a===b){const w=B[k]*HARD_PAY[n];win(`Hard ${n}`,w,`${a} + ${b}, the hard way. Pays ${HARD_PAY[n]} to 1 and stays up`);back+=w}
+    else if(t===n){lose(`Hard ${n}`,B[k],`${n} rolled the easy way`);delete B[k]}
+    else if(t===7){lose(`Hard ${n}`,B[k],'a 7 rolled first');delete B[k]}}
+  for(const [k,n,m] of [['p2',2,30],['p3',3,15],['p11',11,15],['p12',12,30]]){if(!B[k])continue;
+    if(t===n){const w=B[k]*m;win(INFO[k].name,w,`${n} pays ${m} to 1`);back+=B[k]+w}else lose(INFO[k].name,B[k],`only wins on ${n}`);delete B[k]}
+  if(B.horn){const q=B.horn/4;
+    if(t===2||t===12){const w=Math.floor(q*30-3*q);win('Horn',w,`${t} pays 30 to 1 on its quarter; the other three quarters lose`);back+=B.horn+w}
+    else if(t===3||t===11){const w=Math.floor(q*15-3*q);win('Horn',w,`${t} pays 15 to 1 on its quarter; the other three quarters lose`);back+=B.horn+w}
+    else lose('Horn',B.horn,'only wins on 2, 3, 11 or 12');delete B.horn}
+  if(B.ce){const h=B.ce/2;
+    if([2,3,12].includes(t)){const w=Math.floor(h*7-h);win('C & E',w,'the craps half pays 7 to 1; the eleven half loses');back+=B.ce+w}
+    else if(t===11){const w=Math.floor(h*15-h);win('C & E',w,'the eleven half pays 15 to 1; the craps half loses');back+=B.ce+w}
+    else lose('C & E',B.ce,'only wins on 2, 3, 11 or 12');delete B.ce}
+  if(B.come){
+    if(t===7||t===11){win('Come',B.come,'7 or 11 wins a new Come bet');back+=2*B.come}
+    else if([2,3,12].includes(t))lose('Come',B.come,'2, 3 or 12 loses a new Come bet');
+    else{s.come[t]=(s.come[t]||0)+B.come;info(`Come bet moves to ${t}`,`It now wins if ${t} rolls before a 7`)}
+    delete B.come;
+  }
+  for(const n of NUMS){const k='place'+n;if(!B[k])continue;
+    if(pt===null){if(t===n)info(`Place ${n} is off`,'Place bets don’t work on the come-out roll');continue}
+    if(t===n){const w=Math.floor(B[k]*PLACE_PAY[n]);win(`Place ${n}`,w,`pays ${PLACE_TXT[n]}; the bet stays up`);back+=w}
+    else if(t===7){lose(`Place ${n}`,B[k],'a 7 rolled before the number');delete B[k]}
+  }
+  if(pt===null){
+    if(t===7||t===11){
+      if(B.pass){win('Pass Line',B.pass,`${t} on the come-out is a natural`);back+=2*B.pass;delete B.pass}
+      if(B.dontpass){lose('Don’t Pass',B.dontpass,`${t} on the come-out beats Don’t Pass`);delete B.dontpass}
+    }else if(t===2||t===3||t===12){
+      if(B.pass){lose('Pass Line',B.pass,`${t} on the come-out is craps`);delete B.pass}
+      if(B.dontpass){if(t===12)info('Don’t Pass pushes','12 is “barred,” so it’s a tie and your bet stays');else{win('Don’t Pass',B.dontpass,`${t} on the come-out wins for Don’t Pass`);back+=2*B.dontpass;delete B.dontpass}}
+    }else{s.point=t;info(`The point is ${t}`,`Pass Line now needs ${t} again before a 7`)}
+  }else{
+    if(t===pt){
+      if(B.pass){win('Pass Line',B.pass,'the point repeated before a 7');back+=2*B.pass;delete B.pass}
+      if(B.odds){const w=Math.floor(B.odds*ODDS_PAY[pt]);win('Pass Odds',w,`pays true odds of ${ODDS_TXT[pt]}`);back+=B.odds+w;delete B.odds}
+      if(B.dontpass){lose('Don’t Pass',B.dontpass,'the point repeated before a 7');delete B.dontpass}
+      if(B.lay){lose('Lay Odds',B.lay,'lay odds go with Don’t Pass');delete B.lay}
+      s.point=null;info('Point made','The puck goes OFF and a new come-out roll begins');
+    }else if(t===7){
+      if(B.pass){lose('Pass Line',B.pass,'seven out: 7 rolled before the point');delete B.pass}
+      if(B.odds){lose('Pass Odds',B.odds,'Odds go with the Pass Line');delete B.odds}
+      if(B.dontpass){win('Don’t Pass',B.dontpass,'7 rolled before the point');back+=2*B.dontpass;delete B.dontpass}
+      if(B.lay){const w=Math.floor(B.lay*LAY_PAY[pt]);win('Lay Odds',w,`pays true odds of ${LAY_TXT[pt]}`);back+=B.lay+w;delete B.lay}
+      s.point=null;info('Seven out','The puck goes OFF and the dice pass to a new shooter');
+    }
+  }
+  s.w.add(back);
+  return{L,net};
+}
+
+return {fmt,val,isBJ,UP,upName,strategy,P5,CAT,eval5,combos,best,catName,equity,PLACE_PAY,PLACE_TXT,PLACE_EDGE,ODDS_PAY,ODDS_TXT,ODDS_MAX,NUMS,NUMW,WAYS,INFO,LAY_PAY,LAY_TXT,HARD_PAY,PROPS,settleCraps};
+})();
+</script>
 <script>
 (()=>{
 const $=id=>document.getElementById(id);
+const {fmt,val,isBJ,UP,upName,strategy,P5,CAT,eval5,combos,best,catName,equity,PLACE_PAY,PLACE_TXT,PLACE_EDGE,ODDS_PAY,ODDS_TXT,ODDS_MAX,NUMS,NUMW,WAYS,INFO,LAY_PAY,LAY_TXT,HARD_PAY,PROPS,settleCraps}=window.DCR;
 const SUITS=['♠','♥','♦','♣'];
 const rl=r=>({11:'J',12:'Q',13:'K',14:'A'})[r]||String(r);
 let uidN=0;const uid=()=>++uidN;
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a}
 function newDeck(n){const d=[];for(let k=0;k<n;k++)for(let s=0;s<4;s++)for(let r=2;r<=14;r++)d.push({r,s,id:uid()});return shuffle(d)}
-const fmt=n=>n.toLocaleString('en-US');
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 function showTable(id){const t=document.querySelector('#'+id+' .table');if(!t)return;const r=t.getBoundingClientRect();if(r.top<0||r.top>window.innerHeight*.4)t.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})}
 
@@ -808,47 +1023,8 @@ function stickCall(a,b,before,after){
 const BJ={shoe:newDeck(6),phase:'bet',bet:50,hands:[],active:0,dealer:[],revealed:false,msg:'Place your bet'};
 function bjBusy(){return BJ.phase==='play'||BJ.phase==='dealer'}
 function draw(){if(!BJ.shoe.length)BJ.shoe=newDeck(6);return BJ.shoe.pop()}
-function val(cards){let t=0,a=0;for(const c of cards){if(c.r===14){t+=11;a++}else t+=Math.min(c.r,10)}while(t>21&&a){t-=10;a--}return{t,soft:a>0}}
-const isBJ=cards=>cards.length===2&&val(cards).t===21;
 
 /* basic strategy: 6 decks, dealer stands on soft 17, double after split, no surrender */
-const UP=c=>c.r===14?11:Math.min(c.r,10);
-const upName=u=>u===11?'an Ace':u===10?'a 10':u===8?'an 8':'a '+u;
-function strategy(h,up,canD,canP){
-  const v=val(h.cards),c=h.cards,u=UP(up);const two=c.length===2;
-  const pr=two&&Math.min(c[0].r,10)===Math.min(c[1].r,10)?(c[0].r===14?11:Math.min(c[0].r,10)):0;
-  const R=(a,why)=>({a,why});
-  if(pr&&canP){
-    const P=why=>R('P',why);
-    if(pr===11)return P('Always split Aces. Each one is a strong start toward 21.');
-    if(pr===8)return P('Always split 8s. 16 is the worst total, and two hands starting at 8 do much better.');
-    if(pr===9&&![7,10,11].includes(u))return P(`Split 9s against ${upName(u)}. 18 is beatable here, and two 9s are strong starts.`);
-    if((pr===2||pr===3||pr===7)&&u<=7)return P(`Split ${pr}s against ${upName(u)}. The dealer is weak enough that two hands earn more.`);
-    if(pr===6&&u<=6)return P(`Split 6s against ${upName(u)}. The dealer will often bust, so get more money out.`);
-    if(pr===4&&(u===5||u===6))return P('Split 4s against a 5 or 6, the dealer’s weakest cards.');
-  }
-  if(v.soft&&v.t<21){
-    const t=v.t,D=(why,alt)=>canD?R('D',why):alt;
-    if(t>=19)return R('S',`Stand on soft ${t}. It’s already a strong total.`);
-    if(t===18){
-      if(u>=3&&u<=6)return D(`Double soft 18 against ${upName(u)}. You can’t bust with one card and the dealer is weak.`,R('S','Stand on soft 18. Doubling would be best, but you can’t double now.'));
-      if(u===2||u===7||u===8)return R('S',`Stand on soft 18 against ${upName(u)}. 18 is likely to win or tie.`);
-      return R('H',`Hit soft 18 against ${upName(u)}. The dealer will often reach 19 or more, and the Ace means you can’t bust on this card.`);
-    }
-    if(t===17&&u>=3&&u<=6)return D(`Double soft 17 against ${upName(u)}.`,R('H','Hit soft 17. You can’t bust on one card, and 17 rarely wins.'));
-    if((t===15||t===16)&&u>=4&&u<=6)return D(`Double soft ${t} against ${upName(u)}.`,R('H',`Hit soft ${t}. You can’t bust on one card.`));
-    if((t===13||t===14)&&u>=5&&u<=6)return D(`Double soft ${t} against ${upName(u)}.`,R('H',`Hit soft ${t}. You can’t bust on one card.`));
-    return R('H',`Hit soft ${t}. The Ace counts as 1 if you go over, so one more card can’t bust you.`);
-  }
-  const t=v.t;
-  if(t>=17)return R('S',`Stand on hard ${t}. Most cards would bust you.`);
-  if(t>=13)return u<=6?R('S',`Stand on ${t} against ${upName(u)}. The dealer has a good chance to bust, so don’t risk busting first.`):R('H',`Hit ${t} against ${upName(u)}. The dealer will usually make 17 or more, so standing loses more often.`);
-  if(t===12)return u>=4&&u<=6?R('S',`Stand on 12 against ${upName(u)}. Let the dealer take the bust risk.`):R('H',`Hit 12 against ${upName(u)}. Only a 10-value card busts you.`);
-  if(t===11)return u<=10?(canD?R('D',`Double 11 against ${upName(u)}. A 10-value card gives you 21.`):R('H','Hit 11. Doubling is best, but you can’t double now.')):R('H','Hit 11 against an Ace. With the dealer standing on soft 17, doubling here isn’t worth it.');
-  if(t===10)return u<=9?(canD?R('D',`Double 10 against ${upName(u)}. You’re ahead of the dealer.`):R('H','Hit 10. Doubling is best, but you can’t double now.')):R('H',`Hit 10 against ${upName(u)}. The dealer is too strong to double.`);
-  if(t===9)return u>=3&&u<=6?(canD?R('D',`Double 9 against ${upName(u)}.`):R('H','Hit 9. Doubling is best, but you can’t double now.')):R('H',`Hit 9 against ${upName(u)}.`);
-  return R('H',`Hit ${t}. You can’t bust with one more card.`);
-}
 const ACT={H:'Hit',S:'Stand',D:'Double',P:'Split'};
 const COACH={on:true,ok:0,n:0,fb:null,showHint:false};
 try{COACH.on=localStorage.getItem('dcr_coach')!=='off';const a=JSON.parse(localStorage.getItem('dcr_coach_acc')||'null');if(a){COACH.ok=a.ok|0;COACH.n=a.n|0}}catch(e){}
@@ -996,49 +1172,6 @@ function settle(){
 }
 
 /* =================== HAND EVALUATOR =================== */
-const P5=15**5;
-const CAT=['High Card','Pair','Two Pair','Three of a Kind','Straight','Flush','Full House','Four of a Kind','Straight Flush'];
-function eval5(c){
-  const rs=c.map(x=>x.r).sort((a,b)=>b-a);
-  const flush=c[0].s===c[1].s&&c[1].s===c[2].s&&c[2].s===c[3].s&&c[3].s===c[4].s;
-  const cnt=new Map();for(const r of rs)cnt.set(r,(cnt.get(r)||0)+1);
-  const g=[...cnt].sort((a,b)=>b[1]-a[1]||b[0]-a[0]);
-  let sh=0;
-  if(g.length===5){if(rs[0]-rs[4]===4)sh=rs[0];else if(rs[0]===14&&rs[1]===5)sh=5}
-  let cat,tb;
-  if(sh&&flush){cat=8;tb=[sh]}
-  else if(g[0][1]===4){cat=7;tb=[g[0][0],g[1][0]]}
-  else if(g[0][1]===3&&g[1][1]===2){cat=6;tb=[g[0][0],g[1][0]]}
-  else if(flush){cat=5;tb=rs}
-  else if(sh){cat=4;tb=[sh]}
-  else if(g[0][1]===3){cat=3;tb=g.map(x=>x[0])}
-  else if(g[0][1]===2&&g[1][1]===2){cat=2;tb=g.map(x=>x[0])}
-  else if(g[0][1]===2){cat=1;tb=g.map(x=>x[0])}
-  else{cat=0;tb=rs}
-  let s=cat;for(let k=0;k<5;k++)s=s*15+(tb[k]||0);return s;
-}
-const COMB={};
-function combos(n){if(COMB[n])return COMB[n];const out=[];
-  for(let a=0;a<n;a++)for(let b=a+1;b<n;b++)for(let c=b+1;c<n;c++)for(let d=c+1;d<n;d++)for(let e=d+1;e<n;e++)out.push([a,b,c,d,e]);
-  return COMB[n]=out}
-function best(cards){let b=0;for(const k of combos(cards.length)){const s=eval5([cards[k[0]],cards[k[1]],cards[k[2]],cards[k[3]],cards[k[4]]]);if(s>b)b=s}return b}
-const catName=s=>CAT[Math.floor(s/P5)];
-
-function equity(hand,board,nOpp,iters=160){
-  const known=new Set([...hand,...board].map(c=>c.r*4+c.s));
-  const rest=[];for(let s=0;s<4;s++)for(let r=2;r<=14;r++)if(!known.has(r*4+s))rest.push({r,s});
-  const need=5-board.length;let score=0;
-  for(let it=0;it<iters;it++){
-    const take=need+nOpp*2;
-    for(let i=0;i<take;i++){const j=i+Math.floor(Math.random()*(rest.length-i));[rest[i],rest[j]]=[rest[j],rest[i]]}
-    const b=board.concat(rest.slice(0,need));
-    const me=best(hand.concat(b));let top=true,ties=0;
-    for(let o=0;o<nOpp;o++){const s=best([rest[need+o*2],rest[need+o*2+1]].concat(b));if(s>me){top=false;break}if(s===me)ties++}
-    if(top)score+=1/(ties+1);
-  }
-  return score/iters;
-}
-
 /* =================== HOLD'EM =================== */
 let SB=10,BB=20;
 const human={name:'You',isHuman:true,hand:[],folded:false,allIn:false,bet:0,total:0,last:''};
@@ -1297,46 +1430,6 @@ function renderHE(){
 }
 
 /* =================== CRAPS =================== */
-const PLACE_PAY={4:9/5,10:9/5,5:7/5,9:7/5,6:7/6,8:7/6};
-const PLACE_TXT={4:'9 to 5',10:'9 to 5',5:'7 to 5',9:'7 to 5',6:'7 to 6',8:'7 to 6'};
-const PLACE_EDGE={4:'6.67%',10:'6.67%',5:'4.00%',9:'4.00%',6:'1.52%',8:'1.52%'};
-const ODDS_PAY={4:2,10:2,5:1.5,9:1.5,6:1.2,8:1.2};
-const ODDS_TXT={4:'2 to 1',10:'2 to 1',5:'3 to 2',9:'3 to 2',6:'6 to 5',8:'6 to 5'};
-const ODDS_MAX={4:3,10:3,5:4,9:4,6:5,8:5};
-const NUMS=[4,5,6,8,9,10];
-const NUMW={4:'4',5:'5',6:'SIX',8:'8',9:'NINE',10:'10'};
-const LAY_PAY={4:.5,10:.5,5:2/3,9:2/3,6:5/6,8:5/6},LAY_TXT={4:'1 to 2',10:'1 to 2',5:'2 to 3',9:'2 to 3',6:'5 to 6',8:'5 to 6'};
-const HARD_PAY={4:7,6:9,8:9,10:7};
-const PROPS=['hard4','hard6','hard8','hard10','any7','anycraps','p2','p3','p11','p12','horn','ce'];
-const WAYS=[1,2,3,4,5,6,5,4,3,2,1];
-const INFO={
-  pass:{name:'Pass Line',pays:'1 to 1',edge:'1.41%',text:'Wins on 7 or 11 on the come-out and loses on 2, 3 or 12. Any other number becomes the point, and then you win if the point rolls again before a 7.'},
-  dontpass:{name:'Don’t Pass',pays:'1 to 1',edge:'1.36%',text:'The reverse of the Pass Line. Wins on 2 or 3 on the come-out, pushes on 12, loses on 7 or 11. After a point is set, it wins if a 7 rolls before the point.'},
-  odds:{name:'Pass Odds',pays:'True odds',edge:'0%',text:'Goes behind your Pass Line bet once a point is set. Pays 2 to 1 on 4 or 10, 3 to 2 on 5 or 9, and 6 to 5 on 6 or 8. Limit: 3x, 4x, 5x your line bet.'},
-  come:{name:'Come',pays:'1 to 1',edge:'1.41%',text:'A Pass Line bet made while the point is on. The next roll is its own come-out: 7 or 11 wins, 2, 3 or 12 loses, and any other number moves your chip to that number. It then wins if that number rolls before a 7.'},
-  field:{name:'Field',pays:'1 to 1 · 2 pays 2x · 12 pays 3x',edge:'2.78%',text:'A one-roll bet. Wins on 2, 3, 4, 9, 10, 11 or 12 and loses on 5, 6, 7 or 8. The losing numbers have 20 of the 36 combinations.'},
-  any7:{name:'Any 7',pays:'4 to 1',edge:'16.67%',text:'A one-roll bet that the next total is 7. The true odds are 5 to 1, so it pays short. The worst bet on the table.'},
-  anycraps:{name:'Any Craps',pays:'7 to 1',edge:'11.11%',text:'A one-roll bet that the next total is 2, 3 or 12.'}
-};
-Object.assign(INFO,{
-  dontcome:{name:'Don’t Come',pays:'1 to 1',edge:'1.36%',text:'A Don’t Pass bet made while the point is on. On its first roll 2 or 3 wins, 12 pushes, and 7 or 11 loses. Any other number moves the chip onto that number, and it then wins if a 7 rolls first.'},
-  lay:{name:'Lay Odds',pays:'1 to 2 on 4/10 · 2 to 3 on 5/9 · 5 to 6 on 6/8',edge:'0%',text:'Odds behind your Don’t Pass bet once a point is set. You risk more than you win because the 7 is the favorite, but it’s paid at true odds, so the house has no edge. Up to 6x your Don’t Pass bet.'},
-  comeodds:{name:'Come Odds',pays:'True odds',edge:'0%',text:'Odds on a Come bet that has moved to a number. Tap it and the chips go on your first Come number with room left. Pays like Pass Odds. Come Odds are off during the come-out roll, so they’re returned if a 7 rolls then.'},
-  big6:{name:'Big 6',pays:'1 to 1',edge:'9.09%',text:'Wins when a 6 rolls before a 7, works on every roll, and stays up after a win. Place 6 wins on exactly the same rolls but pays 7 to 6, so Big 6 is the worse deal.'},
-  big8:{name:'Big 8',pays:'1 to 1',edge:'9.09%',text:'Wins when an 8 rolls before a 7, works on every roll, and stays up after a win. Place 8 pays 7 to 6 on the same rolls, so it’s the better bet.'},
-  hard4:{name:'Hard 4',pays:'7 to 1',edge:'11.11%',text:'Wins if 4 rolls as 2 + 2 before a 7 or an easy 4 (1 + 3). Stays up after a win. Hardways are off on the come-out roll.'},
-  hard6:{name:'Hard 6',pays:'9 to 1',edge:'9.09%',text:'Wins if 6 rolls as 3 + 3 before a 7 or an easy 6. Stays up after a win. Off on the come-out roll.'},
-  hard8:{name:'Hard 8',pays:'9 to 1',edge:'9.09%',text:'Wins if 8 rolls as 4 + 4 before a 7 or an easy 8. Stays up after a win. Off on the come-out roll.'},
-  hard10:{name:'Hard 10',pays:'7 to 1',edge:'11.11%',text:'Wins if 10 rolls as 5 + 5 before a 7 or an easy 10 (4 + 6). Stays up after a win. Off on the come-out roll.'},
-  p2:{name:'Aces (2)',pays:'30 to 1',edge:'13.89%',text:'A one-roll bet on snake eyes. Only 1 of 36 combinations makes 2.'},
-  p3:{name:'Ace-Deuce (3)',pays:'15 to 1',edge:'11.11%',text:'A one-roll bet that the next total is 3. Two of 36 combinations make it.'},
-  p11:{name:'Yo (11)',pays:'15 to 1',edge:'11.11%',text:'A one-roll bet on eleven, called “yo” so nobody mishears “seven.”'},
-  p12:{name:'Boxcars (12)',pays:'30 to 1',edge:'13.89%',text:'A one-roll bet on 6 + 6.'},
-  horn:{name:'Horn',pays:'2 and 12: 27 to 4 · 3 and 11: 3 to 1',edge:'12.5%',text:'One bet split four ways across 2, 3, 11 and 12, so it’s sized in fours. The winning quarter is paid and the other three lose.'},
-  ce:{name:'C & E',pays:'Craps: 3 to 1 · Eleven: 7 to 1',edge:'11.11%',text:'Half on Any Craps (2, 3, 12) and half on 11, so it’s sized in twos. A one-roll bet.'}
-});
-for(const n of NUMS)INFO['place'+n]={name:'Place '+n,pays:PLACE_TXT[n],edge:PLACE_EDGE[n],text:`Wins every time ${n} rolls before a 7, and the bet stays up after it wins. Place bets are off during the come-out roll.${n===6||n===8?' Bet in multiples of 6 so it pays in full, so this table sizes these bets in sixes.':''}`};
-
 const practice={v:1000,get(){return this.v},add(n){this.v=Math.round(this.v+n)}};
 const realW={get(){return bank},add(n){bank=Math.max(0,Math.round(bank+n));saveBank()}};
 const mkCraps=w=>({w,bets:{},come:{},dc:{},co:{},point:null,dice:[3,4],rolling:false,log:[],msg:'Come-out roll. Bet the Pass Line to start.',stats:{rolls:0,decisions:0},last:null,info:null});
@@ -1441,86 +1534,6 @@ function clearBets(){
   for(const n of Object.keys(s.co)){back+=s.co[n];delete s.co[n]}
   s.w.add(back);s.msg=back?`Took down ${fmt(back)} in bets`+(s.bets.pass?'. A Pass Line bet stays up once the point is on':''):'Nothing to take down';
   renderCR();
-}
-function settleCraps(s,a,b){
-  const t=a+b,B=s.bets,pt=s.point,L=[];let back=0,net=0;
-  const win=(name,w,why)=>{L.push({c:'win',t:`${name} wins ${fmt(w)}`,why});net+=w};
-  const lose=(name,amt,why)=>{L.push({c:'lose',t:`${name} loses ${fmt(amt)}`,why});net-=amt};
-  const info=(t,why)=>L.push({c:'info',t,why});
-  if(B.field){if([2,3,4,9,10,11,12].includes(t)){const m=t===2?2:t===12?3:1,w=B.field*m;win('Field',w,t===2?'2 pays double in the Field':t===12?'12 pays triple in the Field':`${t} is a Field number`);back+=B.field+w}else lose('Field',B.field,`${t} is one of the Field’s losing numbers (5, 6, 7, 8)`);delete B.field}
-  if(B.any7){if(t===7){const w=B.any7*4;win('Any 7',w,'Any 7 pays 4 to 1');back+=B.any7+w}else lose('Any 7',B.any7,'Any 7 only wins on a 7');delete B.any7}
-  if(B.anycraps){if([2,3,12].includes(t)){const w=B.anycraps*7;win('Any Craps',w,'Any Craps pays 7 to 1');back+=B.anycraps+w}else lose('Any Craps',B.anycraps,'Any Craps only wins on 2, 3 or 12');delete B.anycraps}
-  for(const n of Object.keys(s.come).map(Number)){
-    const od=s.co[n]||0;
-    if(t===n){const w=s.come[n];win(`Come ${n}`,w,`${n} rolled before a 7`);back+=2*w;delete s.come[n];
-      if(od){if(pt!==null){const ow=Math.floor(od*ODDS_PAY[n]);win(`Come Odds ${n}`,ow,`pays true odds of ${ODDS_TXT[n]}`);back+=od+ow}else{info(`Come Odds ${n} returned`,'Come odds are off on the come-out roll');back+=od}delete s.co[n]}}
-    else if(t===7){lose(`Come ${n}`,s.come[n],`a 7 rolled before ${n}`);delete s.come[n];
-      if(od){if(pt!==null)lose(`Come Odds ${n}`,od,'odds go with the Come bet');else{info(`Come Odds ${n} returned`,'Come odds are off on the come-out roll');back+=od}delete s.co[n]}}
-  }
-  for(const n of Object.keys(s.dc).map(Number)){
-    if(t===7){const w=s.dc[n];win(`Don’t Come ${n}`,w,`a 7 rolled before ${n}`);back+=2*w;delete s.dc[n]}
-    else if(t===n){lose(`Don’t Come ${n}`,s.dc[n],`${n} rolled before a 7`);delete s.dc[n]}
-  }
-  if(B.dontcome){
-    if(t===2||t===3){win('Don’t Come',B.dontcome,'2 or 3 wins a new Don’t Come bet');back+=2*B.dontcome;delete B.dontcome}
-    else if(t===12)info('Don’t Come pushes','12 is barred; the bet stays for the next roll');
-    else if(t===7||t===11){lose('Don’t Come',B.dontcome,'7 or 11 loses a new Don’t Come bet');delete B.dontcome}
-    else{s.dc[t]=(s.dc[t]||0)+B.dontcome;info(`Don’t Come moves to ${t}`,`It now wins if a 7 rolls before ${t}`);delete B.dontcome}
-  }
-  for(const n of [6,8]){const k='big'+n;if(!B[k])continue;
-    if(t===n){win(`Big ${n}`,B[k],'pays even money; the bet stays up');back+=B[k]}
-    else if(t===7){lose(`Big ${n}`,B[k],`a 7 rolled before ${n}`);delete B[k]}}
-  for(const n of [4,6,8,10]){const k='hard'+n;if(!B[k])continue;
-    if(pt===null){if(t===n||t===7)info(`Hard ${n} is off`,'Hardways don’t work on the come-out roll');continue}
-    if(t===n&&a===b){const w=B[k]*HARD_PAY[n];win(`Hard ${n}`,w,`${a} + ${b}, the hard way. Pays ${HARD_PAY[n]} to 1 and stays up`);back+=w}
-    else if(t===n){lose(`Hard ${n}`,B[k],`${n} rolled the easy way`);delete B[k]}
-    else if(t===7){lose(`Hard ${n}`,B[k],'a 7 rolled first');delete B[k]}}
-  for(const [k,n,m] of [['p2',2,30],['p3',3,15],['p11',11,15],['p12',12,30]]){if(!B[k])continue;
-    if(t===n){const w=B[k]*m;win(INFO[k].name,w,`${n} pays ${m} to 1`);back+=B[k]+w}else lose(INFO[k].name,B[k],`only wins on ${n}`);delete B[k]}
-  if(B.horn){const q=B.horn/4;
-    if(t===2||t===12){const w=Math.floor(q*30-3*q);win('Horn',w,`${t} pays 30 to 1 on its quarter; the other three quarters lose`);back+=B.horn+w}
-    else if(t===3||t===11){const w=Math.floor(q*15-3*q);win('Horn',w,`${t} pays 15 to 1 on its quarter; the other three quarters lose`);back+=B.horn+w}
-    else lose('Horn',B.horn,'only wins on 2, 3, 11 or 12');delete B.horn}
-  if(B.ce){const h=B.ce/2;
-    if([2,3,12].includes(t)){const w=Math.floor(h*7-h);win('C & E',w,'the craps half pays 7 to 1; the eleven half loses');back+=B.ce+w}
-    else if(t===11){const w=Math.floor(h*15-h);win('C & E',w,'the eleven half pays 15 to 1; the craps half loses');back+=B.ce+w}
-    else lose('C & E',B.ce,'only wins on 2, 3, 11 or 12');delete B.ce}
-  if(B.come){
-    if(t===7||t===11){win('Come',B.come,'7 or 11 wins a new Come bet');back+=2*B.come}
-    else if([2,3,12].includes(t))lose('Come',B.come,'2, 3 or 12 loses a new Come bet');
-    else{s.come[t]=(s.come[t]||0)+B.come;info(`Come bet moves to ${t}`,`It now wins if ${t} rolls before a 7`)}
-    delete B.come;
-  }
-  for(const n of NUMS){const k='place'+n;if(!B[k])continue;
-    if(pt===null){if(t===n)info(`Place ${n} is off`,'Place bets don’t work on the come-out roll');continue}
-    if(t===n){const w=Math.floor(B[k]*PLACE_PAY[n]);win(`Place ${n}`,w,`pays ${PLACE_TXT[n]}; the bet stays up`);back+=w}
-    else if(t===7){lose(`Place ${n}`,B[k],'a 7 rolled before the number');delete B[k]}
-  }
-  if(pt===null){
-    if(t===7||t===11){
-      if(B.pass){win('Pass Line',B.pass,`${t} on the come-out is a natural`);back+=2*B.pass;delete B.pass}
-      if(B.dontpass){lose('Don’t Pass',B.dontpass,`${t} on the come-out beats Don’t Pass`);delete B.dontpass}
-    }else if(t===2||t===3||t===12){
-      if(B.pass){lose('Pass Line',B.pass,`${t} on the come-out is craps`);delete B.pass}
-      if(B.dontpass){if(t===12)info('Don’t Pass pushes','12 is “barred,” so it’s a tie and your bet stays');else{win('Don’t Pass',B.dontpass,`${t} on the come-out wins for Don’t Pass`);back+=2*B.dontpass;delete B.dontpass}}
-    }else{s.point=t;info(`The point is ${t}`,`Pass Line now needs ${t} again before a 7`)}
-  }else{
-    if(t===pt){
-      if(B.pass){win('Pass Line',B.pass,'the point repeated before a 7');back+=2*B.pass;delete B.pass}
-      if(B.odds){const w=Math.floor(B.odds*ODDS_PAY[pt]);win('Pass Odds',w,`pays true odds of ${ODDS_TXT[pt]}`);back+=B.odds+w;delete B.odds}
-      if(B.dontpass){lose('Don’t Pass',B.dontpass,'the point repeated before a 7');delete B.dontpass}
-      if(B.lay){lose('Lay Odds',B.lay,'lay odds go with Don’t Pass');delete B.lay}
-      s.point=null;info('Point made','The puck goes OFF and a new come-out roll begins');
-    }else if(t===7){
-      if(B.pass){lose('Pass Line',B.pass,'seven out: 7 rolled before the point');delete B.pass}
-      if(B.odds){lose('Pass Odds',B.odds,'Odds go with the Pass Line');delete B.odds}
-      if(B.dontpass){win('Don’t Pass',B.dontpass,'7 rolled before the point');back+=2*B.dontpass;delete B.dontpass}
-      if(B.lay){const w=Math.floor(B.lay*LAY_PAY[pt]);win('Lay Odds',w,`pays true odds of ${LAY_TXT[pt]}`);back+=B.lay+w;delete B.lay}
-      s.point=null;info('Seven out','The puck goes OFF and the dice pass to a new shooter');
-    }
-  }
-  s.w.add(back);
-  return{L,net};
 }
 function call(a,b){const t=a+b;
   if(t===2)return 'Snake eyes';if(t===3)return 'Ace-deuce';if(t===11)return 'Yo-leven';if(t===12)return 'Boxcars';
