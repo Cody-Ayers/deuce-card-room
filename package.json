@@ -5,7 +5,13 @@
   "description": "Blackjack, Texas Hold'em and Craps as an installable web app.",
   "type": "module",
   "scripts": {
-    "test": "node --test \"tests/*.test.mjs\""
+    "test": "node --test \"tests/*.test.mjs\"",
+    "build:www": "node scripts/build-www.mjs",
+    "ios": "npm run build:www && npx cap sync ios && npx cap open ios",
+    "ios:icons": "npx @capacitor/assets generate --ios --iconBackgroundColor '#2a0a17' --splashBackgroundColor '#2a0a17'"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.110.1"
   },
   "engines": { "node": ">=20" }
 }

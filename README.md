@@ -31,6 +31,9 @@ npm test   # Node 20+, no dependencies
 ## Accounts and friends
 Sign in from the Lounge to back up your progress to the cloud and pick it up on any device. Signed-in players share a leaderboard and a brag wall, and can sit down together at a live Hold'em table. It runs on [Supabase](https://supabase.com): Postgres tables with row-level security for saves and player cards (`supabase/schema.sql`), and Realtime presence for the live table. Signed out or offline, everything else still works. Players can delete their account and data from the Lounge, and the [privacy policy](privacy.html) explains what's stored.
 
+## Native app (iOS)
+The same game builds as a native iPhone app with Capacitor, with fonts and libraries bundled so it runs offline. See [docs/IOS.md](docs/IOS.md).
+
 ## Install on your phone
 - **iPhone (Safari):** Share → Add to Home Screen
 - **Android (Chrome):** menu → Install app
@@ -46,5 +49,7 @@ Signed out, progress is saved on each device.
 | `cloud.js` | Supabase sign-in, cloud saves, leaderboard and live-table presence |
 | `supabase/schema.sql` | Tables, access rules and the account-deletion function to run once in Supabase |
 | `privacy.html` | Privacy policy |
+| `capacitor.config.json`, `scripts/build-www.mjs` | Native app config and the build that bundles fonts and libraries into `www/` |
+| `assets/`, `fonts/` | App icon and launch screen sources, bundled fonts (SIL OFL) |
 | `tests/` | Engine tests (blackjack, poker, craps) |
 | `icons/` | App icon in every size, plus the source SVG |
