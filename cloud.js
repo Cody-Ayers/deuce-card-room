@@ -204,7 +204,7 @@
   };
 
   /* ---------- account panel (top of the Lounge) ---------- */
-  let mode = 'signin', busy = false, msg = '', choice = null;
+  let mode = 'signin', busy = false, msg = '', choice = null, confirmDelete = false;
   function panel() {
     let el = $('acct');
     if (!el) {
@@ -235,8 +235,19 @@
       el.innerHTML = `<h2>Your account</h2>
         <p class="sub" style="color:var(--ivory)">Signed in as <b>${esc(myName())}</b> · ${esc(session.user.email)}</p>
         <p class="sub">${syncError ? esc(syncError) : lastSyncAt ? 'Progress backed up to the cloud · ' + ago(lastSyncAt) : 'Your progress backs up to the cloud automatically.'}</p>
-        <div class="row" style="justify-content:flex-start"><button class="btn ghost preset" id="acOut">Sign out</button></div>`;
+        <div class="row" style="justify-content:flex-start"><button class="btn ghost preset" id="acOut">Sign out</button><button class="btn ghost preset" id="acDel">Delete account</button></div>
+        ${confirmDelete ? `<div class="acdanger">
+          <p><b>Delete your account for good?</b> This removes your account, your cloud save and your leaderboard card and brags. It can’t be undone. Progress already on this device stays here.</p>
+          ${msg ? `<p class="acmsg">${esc(msg)}</p>` : ''}
+          <div class="row" style="justify-content:flex-start"><button class="btn primary" id="acDelYes" ${busy ? 'disabled' : ''}>${busy ? 'Deleting…' : 'Delete my account'}</button><button class="btn ghost" id="acDelNo">Keep my account</button></div>
+        </div>` : ''}
+        <p class="sub"><a href="privacy.html" class="aclink">Privacy policy</a></p>`;
       $('acOut').onclick = async () => { await upload(true); await sb.auth.signOut(); location.reload(); };
+      $('acDel').onclick = () => { confirmDelete = true; msg = ''; renderAccount(); };
+      if (confirmDelete) {
+        $('acDelNo').onclick = () => { confirmDelete = false; msg = ''; renderAccount(); };
+        $('acDelYes').onclick = deleteAccount;
+      }
       return;
     }
     const up = mode === 'signup';
@@ -251,9 +262,19 @@
           <button class="btn primary" type="submit" ${busy ? 'disabled' : ''}>${busy ? 'One moment…' : up ? 'Create account' : 'Sign in'}</button>
           <button class="btn ghost preset" type="button" id="acSwap">${up ? 'I have an account' : 'New here? Create an account'}</button>
         </div>
+        <p class="sub">${up ? 'By creating an account you agree to the ' : ''}<a href="privacy.html" class="aclink">${up ? 'privacy policy' : 'Privacy policy'}</a>${up ? '. Deuce is play money only, for adults 18+.' : ''}</p>
       </form>`;
     $('acSwap').onclick = () => { mode = up ? 'signin' : 'signup'; msg = ''; renderAccount(); };
     $('acForm').onsubmit = (e) => { e.preventDefault(); submit(up); };
+  }
+  async function deleteAccount() {
+    busy = true; msg = ''; renderAccount();
+    const { error } = await sb.rpc('delete_my_account');
+    busy = false;
+    if (error) { msg = 'Couldn’t delete your account right now. Check your connection and try again.'; renderAccount(); return; }
+    try { localStorage.removeItem(SYNC_KEY); } catch (e) {}
+    await sb.auth.signOut().catch(() => {});
+    confirmDelete = false; session = null; msg = 'Your account was deleted.'; location.reload();
   }
   async function submit(up) {
     const email = $('acEmail').value.trim(), pass = $('acPass').value, name = up ? $('acName').value.trim() : '';

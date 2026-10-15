@@ -29,7 +29,7 @@ npm test   # Node 20+, no dependencies
 ```
 
 ## Accounts and friends
-Sign in from the Lounge to back up your progress to the cloud and pick it up on any device. Signed-in players share a leaderboard and a brag wall, and can sit down together at a live Hold'em table. It runs on [Supabase](https://supabase.com): Postgres tables with row-level security for saves and player cards (`supabase/schema.sql`), and Realtime presence for the live table. Signed out or offline, everything else still works.
+Sign in from the Lounge to back up your progress to the cloud and pick it up on any device. Signed-in players share a leaderboard and a brag wall, and can sit down together at a live Hold'em table. It runs on [Supabase](https://supabase.com): Postgres tables with row-level security for saves and player cards (`supabase/schema.sql`), and Realtime presence for the live table. Signed out or offline, everything else still works. Players can delete their account and data from the Lounge, and the [privacy policy](privacy.html) explains what's stored.
 
 ## Install on your phone
 - **iPhone (Safari):** Share → Add to Home Screen
@@ -44,6 +44,7 @@ Signed out, progress is saved on each device.
 | `manifest.webmanifest` | App name, colors and icons for installing |
 | `sw.js` | Service worker for offline play and fresh updates |
 | `cloud.js` | Supabase sign-in, cloud saves, leaderboard and live-table presence |
-| `supabase/schema.sql` | Tables and access rules to run once in Supabase |
+| `supabase/schema.sql` | Tables, access rules and the account-deletion function to run once in Supabase |
+| `privacy.html` | Privacy policy |
 | `tests/` | Engine tests (blackjack, poker, craps) |
 | `icons/` | App icon in every size, plus the source SVG |
