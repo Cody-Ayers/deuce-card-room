@@ -385,7 +385,10 @@ body.night::after{content:"";position:fixed;inset:0;pointer-events:none;backgrou
 .lay.props{grid-template-columns:repeat(4,minmax(0,1fr))}
 /* full casino layout, positioned like the real felt */
 .real{position:relative;width:100%;aspect-ratio:100/58;container-type:inline-size;margin-top:4px}
-.real .z{position:absolute;min-height:0;padding:1px 2px;border-radius:3px;border-width:1.5px;gap:0;line-height:1.05;font-size:max(9px,2.5cqw);background:rgba(0,0,0,.06)}
+.real .z{position:absolute;min-height:0;padding:1px 2px;border-radius:3px;border-width:1.5px;gap:0;line-height:1.05;font-family:var(--f-body);font-weight:800;letter-spacing:.02em;font-size:max(8px,2.2cqw);background:rgba(0,0,0,.06)}
+.real .z small{font-weight:600}
+.real .z.big{font-family:var(--f-display);font-weight:400;letter-spacing:.06em}
+.real .z.num{font-family:var(--f-display);font-weight:400}
 .real .z small{font-size:max(7px,1.55cqw);letter-spacing:0;line-height:1.1}
 .real .z.big{font-size:max(12px,3.6cqw)}
 .real .z.num{padding:0;font-size:max(12px,3.5cqw)}
@@ -400,7 +403,7 @@ body.night::after{content:"";position:fixed;inset:0;pointer-events:none;backgrou
 .real .brandmark{position:absolute;left:30%;top:85%;width:45%;height:15%;display:grid;place-items:center;font-family:var(--f-display);color:rgba(246,247,248,.35);font-size:max(10px,2.6cqw);letter-spacing:.08em;pointer-events:none}
 .real .bchip,.real .cchip,.real .dchip{min-width:max(16px,3.4cqw);height:max(16px,3.4cqw);font-size:max(8px,1.6cqw);line-height:calc(max(16px,3.4cqw) - 4px);padding:0 2px;border-width:1.5px}
 .real .bchip{bottom:1px;right:1px}.real .cchip{top:1px;left:1px}.real .dchip{bottom:1px;left:1px}
-.real .z .puck{top:1px;right:1px;left:auto;transform:none;width:max(16px,3.6cqw);height:max(16px,3.6cqw);line-height:max(16px,3.6cqw);font-size:max(6px,1.3cqw)}
+.real .z .puck{top:-6px;right:-5px;left:auto;transform:none;z-index:2;width:max(15px,3cqw);height:max(15px,3cqw);line-height:max(15px,3cqw);font-size:max(6px,1.2cqw)}
 .rotate-tip{text-align:center;font-size:11px;color:var(--muted);margin-top:-2px}
 @media (orientation:landscape){.rotate-tip{display:none}}
 .z.sm{font-size:13px}
