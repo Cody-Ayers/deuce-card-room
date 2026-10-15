@@ -23,8 +23,6 @@ html,body{margin:0;min-height:100%}
 body{font:14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
 img{max-width:100%}
 [hidden]{display:none!important}
-/* The friends features run on Claude's sharing platform; this installed copy is solo play. */
-.subbar:has(#heMode),.panel:has(#social){display:none!important}
 </style>
 </head>
 <body>
@@ -338,6 +336,11 @@ body.night::after{content:"";position:fixed;inset:0;pointer-events:none;backgrou
   .tab{padding-block:8px}
   .wrap{gap:10px}
 }
+.acform{display:flex;flex-direction:column;gap:10px;max-width:420px}
+.acform label{display:flex;flex-direction:column;gap:4px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.acform input{font:16px var(--f-body);padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--ivory);text-transform:none;letter-spacing:0}
+.acform input:focus{outline:2px solid var(--brass);outline-offset:1px}
+.acmsg{margin:0;font-size:13px;color:var(--lose)}
 .toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 10px);transform:translateX(-50%);z-index:70;pointer-events:none;max-width:calc(100% - 32px);width:max-content;text-align:center;font:700 13px var(--f-body);color:var(--ink);background:var(--ivory);border-radius:999px;padding:8px 14px;box-shadow:0 6px 18px rgba(0,0,0,.4)}
 .toast:empty{display:none}
 .seg{display:inline-flex;gap:3px;padding:3px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--line)}
@@ -803,6 +806,8 @@ function settleCraps(s,a,b){
 return {fmt,val,isBJ,UP,upName,strategy,P5,CAT,eval5,combos,best,catName,equity,PLACE_PAY,PLACE_TXT,PLACE_EDGE,ODDS_PAY,ODDS_TXT,ODDS_MAX,NUMS,NUMW,WAYS,INFO,LAY_PAY,LAY_TXT,HARD_PAY,PROPS,settleCraps};
 })();
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.1/dist/umd/supabase.js"></script>
+<script src="cloud.js"></script>
 <script>
 (()=>{
 const $=id=>document.getElementById(id);
@@ -1393,7 +1398,7 @@ $('heFold').onclick=()=>{if(HE.turn===0)doAction(0,'fold')};
 $('heCall').onclick=()=>{if(HE.turn!==0)return;doAction(0,HE.currentBet-human.bet>0?'call':'check')};
 $('heRaise').onclick=()=>{if(HE.turn===0)doAction(0,'raise',+$('raiseRange').value)};
 $('raiseRange').oninput=e=>$('raiseVal').textContent=fmt(+e.target.value);
-document.querySelectorAll('.preset').forEach(b=>b.onclick=()=>{
+document.querySelectorAll('#raiseBox .preset').forEach(b=>b.onclick=()=>{
   const{min,max}=raiseBounds(),pt=pot()+(HE.currentBet-human.bet);let v=min;
   if(b.dataset.p==='half')v=HE.currentBet+Math.round(pt/2/SB)*SB;
   if(b.dataset.p==='pot')v=HE.currentBet+Math.round(pt/SB)*SB;
@@ -1422,7 +1427,7 @@ function renderHE(){
   const my=HE.active&&HE.turn===0;
   $('heAct').hidden=!HE.active;
   ['heFold','heCall','heRaise'].forEach(id=>$(id).disabled=!my);
-  document.querySelectorAll('.preset').forEach(x=>x.disabled=!my);$('raiseRange').disabled=!my;
+  document.querySelectorAll('#raiseBox .preset').forEach(x=>x.disabled=!my);$('raiseRange').disabled=!my;
   const toCall=Math.max(0,HE.currentBet-human.bet);
   $('heCall').textContent=toCall===0?'Check':toCall>=human.stack?`All-in ${fmt(human.stack)}`:`Call ${fmt(toCall)}`;
   const{min,max}=raiseBounds();
@@ -1749,19 +1754,19 @@ const esc=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 async function renderSocial(){
   const el=$('social');if(!el)return;
   if(!SOC.ready){el.textContent='Connecting…';return}
-  if(!SOC.db){el.innerHTML='Leaderboards and the brag wall need you signed in to Claude. Friends you share this app with (from the Share menu) show up here.';return}
+  if(!SOC.db){el.innerHTML=window.DCR_CLOUD?'Sign in at the top of the Lounge to see the leaderboard and brag wall, and to post your own big moments.':'Leaderboards and the brag wall need you signed in to Claude. Friends you share this app with (from the Share menu) show up here.';return}
   const rows=SOC.players.slice().sort((a,b)=>(b.bank||0)-(a.bank||0));
   const ids=rows.map(r=>r.id);const ps=await nameMap(ids);
   const nm=id=>(ps[id]&&ps[id].name)||'Someone',av=id=>ps[id]?ps[id].avatarUrl:'';
   let h='';
-  if(!rows.length)h+=`<p class="sub">No one’s on the board yet. Play a hand and you’ll be first. Share the app with friends from the Share menu to compete.</p>`;
+  if(!rows.length)h+=`<p class="sub">No one’s on the board yet. Play a hand and you’ll be first. ${window.DCR_CLOUD?'Send friends the app’s link so they can make an account and compete.':'Share the app with friends from the Share menu to compete.'}</p>`;
   else{h+=`<div class="lbwrap"><table class="lb"><tbody>${rows.slice(0,20).map((r,k)=>`<tr class="${r.id===SOC.uid?'me':''}"><td class="r">${k+1}</td><td><div class="who">${av(r.id)?`<img alt="" src="${esc(av(r.id))}">`:''}<span>${esc(nm(r.id))}${r.id===SOC.uid?' (you)':''}<br><span class="lv">${esc((LEVELS[r.lvl|0]||LEVELS[0]).n)} · ${r.ach|0} achievements</span></span></div></td><td class="n">${fmt(r.bank|0)}</td></tr>`).join('')}</tbody></table></div>`;
     const all=[];rows.forEach(r=>(Array.isArray(r.brags)?r.brags:[]).forEach(b=>{if(b&&typeof b.x==='string')all.push({id:r.id,t:+b.t||0,x:b.x.slice(0,120)})}));
     all.sort((a,b)=>b.t-a.t);
     h+=`<h2 style="font-size:17px;margin-top:8px">Brag wall</h2>`+(all.length?`<div class="brags">${all.slice(0,15).map(b=>`<div class="brag">${av(b.id)?`<img alt="" src="${esc(av(b.id))}">`:''}<div><b>${esc(nm(b.id))}</b> ${esc(b.x)}<small>${ago(b.t)}</small></div></div>`).join('')}</div>`:`<p class="sub">Big wins, level-ups and achievements get posted here automatically.</p>`);}
   if(!SOC.canWrite)h+=`<p class="sub">You can see the board but can’t post to it. The app’s owner can give you Contributor access from the Share menu.</p>`;
   else if(!SOC.uid)h+=`<p class="sub">Sign in to Claude to put your name on the board.</p>`;
-  else h+=`<p class="sub">Your bank, level and big moments are shared with everyone who can open this app.</p>`;
+  else h+=`<p class="sub">${window.DCR_CLOUD?'Your name, bank, level and big moments are visible to everyone signed in to Deuce.':'Your bank, level and big moments are shared with everyone who can open this app.'}</p>`;
   el.innerHTML=h;
 }
 
@@ -1898,7 +1903,7 @@ function renderLive(){
   const info=$('ltInfo');
   if(!SOC.ready){info.textContent='Connecting…';return}
   if(!SOC.room||LT.err){$('ltSit').hidden=true;$('ltAct').hidden=true;$('ltSeats').innerHTML='';$('ltBoard').innerHTML='';$('ltYou').innerHTML='';$('ltPot').textContent='';$('ltMsg').textContent='Live tables aren’t available here.';
-    info.innerHTML='Live tables need everyone signed in to Claude, with access to this app. The owner can invite friends from the Share menu.';return}
+    info.innerHTML=window.DCR_CLOUD?'Sign in from the Lounge to play live with friends. Everyone at the table needs an account.':'Live tables need everyone signed in to Claude, with access to this app. The owner can invite friends from the Share menu.';return}
   if(!LT.r){info.textContent='Joining the table…';return}
   const st=ltState();const H=st?st.h:0;
   const nm=(p,k)=>p.p===LT.myPeer?'You':(p.u&&LT.names[p.u])||`Player ${k+1}`;

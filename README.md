@@ -28,11 +28,14 @@ Blackjack, Texas Hold'em and Craps in one installable web app, dressed in burgun
 npm test   # Node 20+, no dependencies
 ```
 
+## Accounts and friends
+Sign in from the Lounge to back up your progress to the cloud and pick it up on any device. Signed-in players share a leaderboard and a brag wall, and can sit down together at a live Hold'em table. It runs on [Supabase](https://supabase.com): Postgres tables with row-level security for saves and player cards (`supabase/schema.sql`), and Realtime presence for the live table. Signed out or offline, everything else still works.
+
 ## Install on your phone
 - **iPhone (Safari):** Share → Add to Home Screen
 - **Android (Chrome):** menu → Install app
 
-Progress is saved on each device.
+Signed out, progress is saved on each device.
 
 ## Files
 | File | What it does |
@@ -40,5 +43,7 @@ Progress is saved on each device.
 | `index.html` | The whole app: engine, interface and styles |
 | `manifest.webmanifest` | App name, colors and icons for installing |
 | `sw.js` | Service worker for offline play and fresh updates |
+| `cloud.js` | Supabase sign-in, cloud saves, leaderboard and live-table presence |
+| `supabase/schema.sql` | Tables and access rules to run once in Supabase |
 | `tests/` | Engine tests (blackjack, poker, craps) |
 | `icons/` | App icon in every size, plus the source SVG |
