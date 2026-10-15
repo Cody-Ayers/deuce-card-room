@@ -6,7 +6,7 @@ The native app is the same game wrapped with [Capacitor](https://capacitorjs.com
 
 ```bash
 cd ~/Projects/deuce-card-room
-node -v                      # needs 20 or newer
+node -v                      # needs 22 or newer (nvm install 22)
 npm install
 npm install @capacitor/core @capacitor/ios @capacitor/status-bar
 npm install -D @capacitor/cli @capacitor/assets

@@ -25,7 +25,7 @@ Blackjack, Texas Hold'em and Craps in one installable web app, dressed in burgun
 - **Tested:** 46 tests load that engine straight out of `index.html`, so they check the exact code the app runs. They run on every push with GitHub Actions.
 
 ```bash
-npm test   # Node 20+, no dependencies
+npm test   # Node 22+, no dependencies
 ```
 
 ## Accounts and friends
