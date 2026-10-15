@@ -4,6 +4,8 @@ The native app is the same game wrapped with [Capacitor](https://capacitorjs.com
 
 ## One-time setup (Mac)
 
+Shortcut: `bash scripts/setup-ios.sh` runs every step below. It finds Node 22 from nvm even if an older Homebrew Node comes first on your PATH.
+
 ```bash
 cd ~/Projects/deuce-card-room
 node -v                      # needs 22 or newer (nvm install 22)
