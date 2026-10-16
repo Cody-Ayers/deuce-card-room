@@ -19,6 +19,9 @@ function localFonts(html, file) {
 }
 
 let index = localFonts(readFileSync('index.html', 'utf8'), 'index.html');
+// Native app: behave like an app, not a web page (no pinch or double-tap zoom).
+index = index.replace('content="width=device-width,initial-scale=1,viewport-fit=cover"', 'content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"');
+if (!index.includes('user-scalable=no')) throw new Error('viewport meta not found');
 
 const vendored = 'node_modules/@supabase/supabase-js/dist/umd/supabase.js';
 if (existsSync(vendored)) {
