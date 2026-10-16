@@ -87,11 +87,11 @@ h1{font-family:var(--f-display);font-weight:400;color:var(--ivory);text-shadow:0
 }
 .card::before{content:"";position:absolute;inset:calc(var(--cw)*.06);border:var(--k-frame);border-radius:calc(var(--cw)*.06);pointer-events:none}
 .card.red{color:var(--k-red)}
-.card .ix{position:absolute;z-index:1;display:flex;flex-direction:column;align-items:center;line-height:.9;font-size:calc(var(--cw)*.25)}
-.card .ix small{font-family:var(--f-body);font-size:.8em}
+.card .ix{position:absolute;z-index:1;display:flex;flex-direction:column;align-items:center;line-height:.86;font-size:calc(var(--cw)*.34);letter-spacing:-.05em;font-variant-numeric:lining-nums}
+.card .ix small{font-family:var(--f-body);font-size:.72em;letter-spacing:0;margin-top:.06em}
 .card .tl{top:calc(var(--cw)*.08);left:calc(var(--cw)*.09)}
 .card .br{bottom:calc(var(--cw)*.08);right:calc(var(--cw)*.09);transform:rotate(180deg)}
-.card .pip{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-body);font-size:calc(var(--cw)*.44)}
+.card .pip{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-body);font-size:calc(var(--cw)*.4);padding-top:8%}
 .card.face .pip{inset:24% 20%;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:.9;background:var(--k-court);border-radius:calc(var(--cw)*.05);font-family:var(--k-font);font-size:calc(var(--cw)*.4)}
 .card.face .pip small{font-family:var(--f-body);font-size:.5em}
 .card.back{background:var(--k-back,var(--k-back-deck));box-shadow:inset 0 0 0 calc(var(--cw)*.05) var(--k-back-edge),0 2px 6px rgba(0,0,0,.4)}
@@ -101,7 +101,7 @@ h1{font-family:var(--f-display);font-weight:400;color:var(--ivory);text-shadow:0
 .seat .card .br,.hand .card:not(:last-child) .br{display:none}
 /* deck styles: Deco (default), Classic, Four-color */
 body{
-  --k-bg:linear-gradient(160deg,#ffffff,#e6ebee);--k-ink:#111417;--k-red:#8c1d3c;--k-font:var(--f-display);--k-weight:400;
+  --k-bg:linear-gradient(160deg,#ffffff,#e6ebee);--k-ink:#111417;--k-red:#a3203f;--k-font:var(--f-body);--k-weight:800;
   --k-frame:1px solid rgba(35,97,146,.45);--k-court:rgba(35,97,146,.12);
   --k-back-deck:radial-gradient(circle,var(--brass) 0 8%,transparent 9%),repeating-conic-gradient(from 0deg,#6f263d 0 9deg,#236192 9deg 18deg);
   --k-back-edge:var(--ivory);--k-back-line:var(--brass)
