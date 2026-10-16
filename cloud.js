@@ -203,6 +203,22 @@
     },
   };
 
+  /* ---------- Deuce Pro (entitlements table) ----------
+   Pro is granted per account in the `entitlements` table, which players can
+   read but never write (owner and testers are added from the Supabase SQL
+   editor; store purchases will be written there by the server later). */
+  function sendPro(src) {
+    window.DCR_PRO_STATE = src;
+    window.dispatchEvent(new CustomEvent('dcr-pro', { detail: { src } }));
+  }
+  async function checkPro() {
+    if (!sb) return;                      // offline: keep whatever the app cached
+    if (!session) { sendPro(null); return; }
+    const { data, error } = await sb.from('entitlements').select('pro,source').eq('user_id', uid()).maybeSingle();
+    if (error) return;                    // table missing or network trouble: keep the cache
+    sendPro(data && data.pro ? data.source || 'purchase' : null);
+  }
+
   /* ---------- account panel (top of the Lounge) ---------- */
   let mode = 'signin', busy = false, msg = '', choice = null, confirmDelete = false;
   function panel() {
@@ -242,7 +258,7 @@
           <div class="row" style="justify-content:flex-start"><button class="btn primary" id="acDelYes" ${busy ? 'disabled' : ''}>${busy ? 'Deleting…' : 'Delete my account'}</button><button class="btn ghost" id="acDelNo">Keep my account</button></div>
         </div>` : ''}
         <p class="sub"><a href="privacy.html" class="aclink">Privacy policy</a></p>`;
-      $('acOut').onclick = async () => { await upload(true); await sb.auth.signOut(); location.reload(); };
+      $('acOut').onclick = async () => { await upload(true); await sb.auth.signOut(); sendPro(null); location.reload(); };
       $('acDel').onclick = () => { confirmDelete = true; msg = ''; renderAccount(); };
       if (confirmDelete) {
         $('acDelNo').onclick = () => { confirmDelete = false; msg = ''; renderAccount(); };
@@ -274,7 +290,7 @@
     if (error) { msg = 'Couldn’t delete your account right now. Check your connection and try again.'; renderAccount(); return; }
     try { localStorage.removeItem(SYNC_KEY); } catch (e) {}
     await sb.auth.signOut().catch(() => {});
-    confirmDelete = false; session = null; msg = 'Your account was deleted.'; location.reload();
+    confirmDelete = false; session = null; sendPro(null); msg = 'Your account was deleted.'; location.reload();
   }
   async function submit(up) {
     const email = $('acEmail').value.trim(), pass = $('acPass').value, name = up ? $('acName').value.trim() : '';
@@ -297,5 +313,5 @@
     location.reload();
   }
 
-  ready.then(() => { renderAccount(); startSync(); });
+  ready.then(() => { renderAccount(); startSync(); checkPro(); });
 })();

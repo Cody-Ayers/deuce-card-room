@@ -65,3 +65,24 @@ end;
 $$;
 revoke execute on function public.delete_my_account() from public, anon;
 grant execute on function public.delete_my_account() to authenticated;
+
+-- Deuce Pro: which accounts have Pro. Players can read their own row but
+-- can't write it; you grant Pro from the SQL editor (owner, testers), and
+-- store purchases will be recorded here by the server later.
+create table if not exists public.entitlements (
+  user_id    uuid primary key references auth.users on delete cascade,
+  pro        boolean not null default true,
+  source     text not null default 'owner' check (source in ('owner', 'tester', 'purchase')),
+  note       text,
+  created_at timestamptz not null default now()
+);
+alter table public.entitlements enable row level security;
+
+drop policy if exists "Players read their own entitlement" on public.entitlements;
+create policy "Players read their own entitlement" on public.entitlements
+  for select to authenticated using ((select auth.uid()) = user_id);
+
+-- Give an account Pro (change the email; use 'tester' for friends):
+-- insert into public.entitlements (user_id, source)
+--   select id, 'owner' from auth.users where email = 'you@example.com'
+--   on conflict (user_id) do update set pro = true, source = excluded.source;

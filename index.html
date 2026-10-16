@@ -234,6 +234,12 @@ body[data-back="banner"],[data-preview="banner"]{--k-back:repeating-linear-gradi
 .pick[aria-pressed="true"]{border-color:var(--ivory);background:rgba(255,255,255,.08)}
 .pick:disabled{cursor:not-allowed;opacity:.55}
 .pick .lock{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.pick.locked{opacity:.55}
+.pick .lock.pro,.protag{font:800 9.5px var(--f-body);letter-spacing:.14em;text-transform:uppercase;color:#1a0710;background:linear-gradient(135deg,#e8edf0,#a9b6bd);border-radius:999px;padding:2px 7px}
+.vip .protag{margin-left:2px}
+.prolist{margin:4px 0 10px;padding-left:18px;color:var(--muted)}.prolist li{margin-bottom:4px}
+.proteaser{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:14px}
+#proPanel.pulse{animation:propulse 1.2s ease-out}@keyframes propulse{0%{box-shadow:0 0 0 0 rgba(205,213,216,.7)}100%{box-shadow:0 0 0 14px rgba(205,213,216,0)}}
 .sw{width:100%;height:34px;border-radius:8px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
 .sw.back{width:30px;height:42px;border-radius:5px;background:var(--b);box-shadow:inset 0 0 0 2px var(--e,#fff)}
 .stake{font-family:var(--f-num);font-size:15px}
@@ -598,12 +604,13 @@ body[data-felt="rink"] .table .real .propbox{background:rgba(19,35,58,.08)}
       <div class="game" id="gPuzzle" hidden></div>
     </div>
     <div class="panel" id="vipPanel"></div>
+    <div class="panel" id="proPanel" hidden></div>
     <div class="panel"><h2>Friends</h2><div id="social" class="sub">Connecting…</div></div>
     <div class="panel"><h2>Your records</h2><div class="recs" id="recs"></div><div class="chartbox" id="bankChart"></div></div>
     <div class="panel"><h2>Achievements <span class="xp" id="achCount"></span></h2><p class="sub">Each one pays 100 chips to your bank.</p><div class="achs" id="achs"></div></div>
     <div class="panel"><h2>Table settings</h2>
       <div class="subbar" style="justify-content:flex-start">Card style <div class="seg" id="deckSeg"><button data-deck="deco" aria-pressed="true">Deco</button><button data-deck="classic" aria-pressed="false">Classic</button><button data-deck="four" aria-pressed="false">Four-color</button></div></div>
-      <div class="subbar" style="justify-content:flex-start">Blackjack coach <div class="seg" id="coachSeg"><button data-coach="on" aria-pressed="true">On</button><button data-coach="off" aria-pressed="false">Off</button></div><button class="btn ghost preset" id="bjAccReset">Reset coach score</button></div>
+      <div class="subbar" id="coachRow" style="justify-content:flex-start">Blackjack coach <div class="seg" id="coachSeg"><button data-coach="on" aria-pressed="true">On</button><button data-coach="off" aria-pressed="false">Off</button></div><button class="btn ghost preset" id="bjAccReset">Reset coach score</button></div>
     </div>
     <div class="panel"><h2>Table surface</h2><p class="sub">Classic felts, or play on a rink, field, court, green or diamond.</p><div class="picks" id="feltPicks"></div></div>
     <div class="panel"><h2>Card back</h2><div class="picks" id="backPicks"></div></div>
@@ -881,31 +888,44 @@ $('sndBtn').onclick=()=>setSound(!soundOn);
 const PROF={xp:0,felt:'steel',back:'deck',stakes:'low',bots:{}};
 try{Object.assign(PROF,JSON.parse(localStorage.getItem('dcr_prof')||'{}'))}catch(e){}
 function saveProf(){try{localStorage.setItem('dcr_prof',JSON.stringify(PROF))}catch(e){}}
+/* Deuce Pro. Only the App Store app is split into Free and Pro; the website stays fully open.
+   Pro comes from the signed-in account (the entitlements table, read by cloud.js). */
+const GATED=(()=>{try{const C=window.Capacitor;return !!(C&&C.isNativePlatform&&C.isNativePlatform())||localStorage.getItem('deuce-gate')==='1'}catch(e){return false}})();
+const PRO={src:null};
+try{const c=JSON.parse(localStorage.getItem('deuce-pro')||'null');if(c&&c.src)PRO.src=c.src}catch(e){}
+if(window.DCR_PRO_STATE!==undefined)PRO.src=window.DCR_PRO_STATE;
+const isPro=()=>!GATED||!!PRO.src;
+const effLvl=()=>isPro()?99:lvlIdx();
 const LEVELS=[{n:'Bronze',xp:0,c:'#b0794a'},{n:'Silver',xp:3000,c:'#cdd5d8'},{n:'Gold',xp:12000,c:'#e2b84a'},{n:'Platinum',xp:40000,c:'#9fd3f2'},{n:'Avalanche Club',xp:100000,c:'#8c2a4a'}];
 const lvlIdx=(xp=PROF.xp)=>{let i=0;LEVELS.forEach((l,k)=>{if(xp>=l.xp)i=k});return i};
 const FELTS=[{k:'steel',n:'Steel Blue',lv:0,c:['#2a74ad','#123f66']},{k:'burgundy',n:'Burgundy',lv:1,c:['#8a2f4c','#45101f']},{k:'blackice',n:'Black Ice',lv:2,c:['#34404c','#0d1216']},{k:'midnight',n:'Midnight Peak',lv:3,c:['#1f4f8f','#081530']},{k:'silver',n:'Championship Silver',lv:4,c:['#66747c','#262e33']},
-  {k:'rink',n:'Hockey Rink',lv:0,venue:1},{k:'football',n:'Football Field',lv:0,venue:1},{k:'court',n:'Basketball Court',lv:0,venue:1},{k:'green',n:'Golf Green',lv:0,venue:1},{k:'diamond',n:'Baseball Diamond',lv:0,venue:1}];
+  {k:'rink',n:'Hockey Rink',lv:0,venue:1,pro:1},{k:'football',n:'Football Field',lv:0,venue:1,pro:1},{k:'court',n:'Basketball Court',lv:0,venue:1,pro:1},{k:'green',n:'Golf Green',lv:0,venue:1,pro:1},{k:'diamond',n:'Baseball Diamond',lv:0,venue:1,pro:1}];
 const BACKS=[{k:'deck',n:'Deck default',lv:0},{k:'peaks',n:'Peaks',lv:1},{k:'ice',n:'Ice',lv:2},{k:'onyx',n:'Onyx',lv:3},{k:'banner',n:'Banner',lv:4}];
 const STAKES=[{k:'low',sb:10,bb:20,lv:0},{k:'mid',sb:25,bb:50,lv:1},{k:'high',sb:100,bb:200,lv:2},{k:'club',sb:250,bb:500,lv:4}];
 const stake=()=>STAKES.find(x=>x.k===PROF.stakes)||STAKES[0];
 function applyLooks(){
-  const L=lvlIdx();
-  if((FELTS.find(f=>f.k===PROF.felt)||{lv:9}).lv>L)PROF.felt='steel';
+  const L=effLvl(),P=isPro();
+  if((FELTS.find(f=>f.k===PROF.felt)||{lv:9}).lv>L||(!P&&(FELTS.find(f=>f.k===PROF.felt)||{}).pro))PROF.felt='steel';
   if((BACKS.find(f=>f.k===PROF.back)||{lv:9}).lv>L)PROF.back='deck';
   if((STAKES.find(f=>f.k===PROF.stakes)||{lv:9}).lv>L)PROF.stakes='low';
   document.body.dataset.felt=PROF.felt;document.body.dataset.back=PROF.back;
-  $('vipName').textContent=LEVELS[L].n;$('vipPill').style.setProperty('--lvl',LEVELS[L].c);
+  const R=lvlIdx();$('vipName').textContent=LEVELS[R].n;$('vipPill').style.setProperty('--lvl',LEVELS[R].c);
+  let pt=$('vipPill').querySelector('.protag');if(GATED&&P&&!pt){pt=document.createElement('span');pt.className='protag';pt.textContent='Pro';$('vipPill').appendChild(pt)}else if(pt&&!(GATED&&P))pt.remove();
   document.querySelectorAll('.c1000').forEach(b=>b.hidden=L<2);
   document.querySelectorAll('#crChips [data-c="500"]').forEach(b=>b.hidden=L<1);
 }
+function setPro(src){src=src||null;if(src===PRO.src)return;PRO.src=src;try{src?localStorage.setItem('deuce-pro',JSON.stringify({src})):localStorage.removeItem('deuce-pro')}catch(e){}
+  applyLooks();if(typeof renderBJ==='function'&&tab==='bj')renderBJ();if(typeof renderLounge==='function'&&tab==='lo')renderLounge()}
+window.addEventListener('dcr-pro',e=>setPro(e.detail&&e.detail.src));
+function showPro(){const p=$('proPanel');if(!p||p.hidden){toast('That’s part of Deuce Pro');return}if(tab!=='lo')setTab('lo');requestAnimationFrame(()=>{p.scrollIntoView({behavior:'smooth',block:'center'});p.classList.remove('pulse');void p.offsetWidth;p.classList.add('pulse')})}
 function addXP(n){
   if(!(n>0))return;const before=lvlIdx();PROF.xp+=Math.round(n);saveProf();const after=lvlIdx();
-  if(after>before){applyLooks();levelUp(after)}
+  if(after>before){applyLooks();levelUp(after,isPro())}
   if(after>=1&&typeof ach==='function')ach('silver');
 }
-function levelUp(L){brag(`reached ${LEVELS[L].n} VIP`);
+function levelUp(L,pro){brag(`reached ${LEVELS[L].n} VIP`);
   sfx('big');flash();
-  const msg=`Level up: ${LEVELS[L].n}! New unlocks in the Lounge.`;
+  const msg=pro?`Level up: ${LEVELS[L].n}!`:`Level up: ${LEVELS[L].n}! New unlocks in the Lounge.`;
   toast(msg,true);
 }
 function flash(){if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;const f=document.createElement('div');f.className='flash';document.body.appendChild(f);setTimeout(()=>f.remove(),950)}
@@ -1067,7 +1087,7 @@ function currentAdvice(){
   return strategy(h,BJ.dealer[0],two&&bank>=h.bet,pair&&bank>=h.bet&&BJ.hands.length<4);
 }
 function grade(act){
-  const adv=currentAdvice();if(!adv)return;
+  if(!isPro())return;const adv=currentAdvice();if(!adv)return;
   const h=BJ.hands[BJ.active],v=val(h.cards);
   const hand=`${v.soft&&v.t<21?'soft ':''}${v.t}${h.cards.length===2&&Math.min(h.cards[0].r,10)===Math.min(h.cards[1].r,10)?` (pair of ${rl(h.cards[0].r)}s)`:''} vs ${upName(UP(BJ.dealer[0]))}`;
   COACH.n++;const good=adv.a===act;if(good)COACH.ok++;
@@ -1076,9 +1096,13 @@ function grade(act){
 }
 function renderCoachBJ(){
   document.querySelectorAll('#coachSeg button').forEach(b=>b.setAttribute('aria-pressed',(b.dataset.coach==='on')===COACH.on));
-  $('bjCoach').hidden=!COACH.on;
+  const on=COACH.on&&isPro();
+  $('coachSeg').hidden=$('bjAccReset').hidden=!isPro();
+  let ct=$('coachRow').querySelector('.proteaser');
+  if(!isPro()&&!ct){ct=document.createElement('span');ct.className='proteaser';ct.innerHTML='<span class="protag">Pro</span><button class="btn ghost preset" data-pro>See Pro</button>';$('coachRow').appendChild(ct)}else if(ct&&isPro())ct.remove();
+  $('bjCoach').hidden=!on;
   ['bjHit','bjStand','bjDouble','bjSplit'].forEach(id=>$(id).classList.remove('suggest'));
-  if(!COACH.on)return;
+  if(!on)return;
   $('bjAcc').textContent=COACH.n?`${COACH.ok} of ${COACH.n} right · ${Math.round(COACH.ok/COACH.n*100)}%`:'No decisions yet';
   const adv=currentAdvice();
   let html=COACH.fb?`<span class="${COACH.fb.good?'ok':'bad'}">${COACH.fb.html}</span>`:'Coach is on: after each move I’ll say if it matches basic strategy. Tap Hint if unsure.';
@@ -2021,7 +2045,7 @@ function renderLounge(){
   renderGames();renderSocial();
   const R=PROF.rec,C=PROF.cnt;
   $('recs').innerHTML=[['Highest bank',R.bankHigh||bank],['Best blackjack round',R.bjWin||0],['Blackjack win streak',R.bjStreak||0],['Biggest Hold’em pot',R.hePot||0],['Best craps roll',R.crWin||0],['Hands played',(C.bjHands||0)+(C.heHands||0)]].map(([k,v])=>`<div class="rec"><span>${k}</span><b>${fmt(v)}</b></div>`).join('');
-  $('bankChart').innerHTML=bankChartSVG();wireChart();
+  $('bankChart').innerHTML=isPro()?bankChartSVG():'<div class="proteaser"><span class="protag">Pro</span>See your bank over time, with every high and low.<button class="btn ghost preset" data-pro>See Pro</button></div>';if(isPro())wireChart();
   const got=ACH.filter(a=>PROF.ach[a.k]).length;$('achCount').textContent=`· ${got} of ${ACH.length}`;
   $('achs').innerHTML=ACH.map(a=>`<div class="ach ${PROF.ach[a.k]?'got':''}"><span class="gm">${a.g}</span><b>${a.n}</b><span>${a.d}</span></div>`).join('');
   document.querySelectorAll('#ambSeg button').forEach(b=>b.setAttribute('aria-pressed',(b.dataset.amb==='on')===ambOn));
@@ -2032,11 +2056,15 @@ function renderLounge(){
     <div class="bar"><span style="width:${pct}%"></span></div>
     <div class="ladder">${LEVELS.map((l,k)=>`<span class="${k<=L?'on':''}">${l.n.replace('Avalanche ','Aval. ')}</span>`).join('')}</div>
     <p class="sub">Every chip you bet from your bank earns 1 XP, in any game. Practice chips in Craps Learn mode don’t count.</p>`;
-  const lock=lv=>`<span class="lock">${lv<=L?'':'Unlocks at '+LEVELS[lv].n}</span>`;
-  $('feltPicks').innerHTML=FELTS.map(f=>`<button class="pick" data-felt="${f.k}" aria-pressed="${PROF.felt===f.k}" ${f.lv>L?'disabled':''}><span class="sw${f.venue?' venue':''}" style="background:${f.venue?`var(--v-${f.k})`:`radial-gradient(circle at 50% 30%,${f.c[0]},${f.c[1]})`}"></span>${f.n}${lock(f.lv)}</button>`).join('');
-  $('backPicks').innerHTML=BACKS.map(b=>`<button class="pick" data-back="${b.k}" aria-pressed="${PROF.back===b.k}" ${b.lv>L?'disabled':''}><span class="card back" style="--cw:34px" data-preview="${b.k}"></span>${b.n}${lock(b.lv)}</button>`).join('');
-  $('stakePicks').innerHTML=STAKES.map(x=>`<button class="pick" data-stake="${x.k}" aria-pressed="${PROF.stakes===x.k}" ${x.lv>L?'disabled':''}><span class="stake">${fmt(x.sb)} / ${fmt(x.bb)}</span>${lock(x.lv)}</button>`).join('');
-  const extra=[];if(L>=2)extra.push('1,000 chip at Blackjack');if(L>=1)extra.push('500 chip at Craps');
+  const P=isPro(),E=effLvl();
+  const st2=it=>!P&&it.pro?'pro':it.lv>E?'lvl':'';
+  const lock=it=>{const k=st2(it);return k==='pro'?'<span class="lock pro">Pro</span>':k==='lvl'?`<span class="lock">Unlocks at ${LEVELS[it.lv].n}${GATED?' · or Pro':''}</span>`:it.pro&&GATED?'<span class="lock pro">Pro</span>':'<span class="lock"></span>'};
+  const attrs=it=>{const k=st2(it);return k==='pro'?'class="pick locked" data-pro':k==='lvl'?'class="pick" disabled':'class="pick"'};
+  $('feltPicks').innerHTML=FELTS.map(f=>`<button ${attrs(f)} data-felt="${f.k}" aria-pressed="${PROF.felt===f.k}"><span class="sw${f.venue?' venue':''}" style="background:${f.venue?`var(--v-${f.k})`:`radial-gradient(circle at 50% 30%,${f.c[0]},${f.c[1]})`}"></span>${f.n}${lock(f)}</button>`).join('');
+  $('backPicks').innerHTML=BACKS.map(b=>`<button ${attrs(b)} data-back="${b.k}" aria-pressed="${PROF.back===b.k}"><span class="card back" style="--cw:34px" data-preview="${b.k}"></span>${b.n}${lock(b)}</button>`).join('');
+  $('stakePicks').innerHTML=STAKES.map(x=>`<button ${attrs(x)} data-stake="${x.k}" aria-pressed="${PROF.stakes===x.k}"><span class="stake">${fmt(x.sb)} / ${fmt(x.bb)}</span>${lock(x)}</button>`).join('');
+  renderProPanel();
+  const extra=[];if(E>=2)extra.push('1,000 chip at Blackjack');if(E>=1)extra.push('500 chip at Craps');
   $('regulars').innerHTML=['Rosa','Dutch','Mei'].map(n=>{const m=PROF.bots[n];
     const bio={Rosa:'Tight and patient. Goes quiet when she has a big hand.',Dutch:'Loud, loves to bluff, hates to lose.',Mei:'Sharp, plays the odds, never lets you forget a bad fold.'}[n];
     return `<p style="margin:0 0 8px"><b style="color:var(--ivory)">${n}</b> · ${bio}<br>${m&&m.hands?`${fmt(m.hands)} hands together · ${m.net>0?`${n} is up ${fmt(m.net)} on you`:m.net<0?`you’re up ${fmt(-m.net)} on ${n}`:'dead even'} · last seen ${whenStr(m.last).replace(/^on /,'').replace('earlier','today').replace('last time','a while ago')}`:'You haven’t played together yet.'}</p>`}).join('')+
@@ -2044,6 +2072,15 @@ function renderLounge(){
   renderBank();renderTabs();
 }
 document.querySelectorAll('#ambSeg button').forEach(b=>b.onclick=()=>{setAmb(b.dataset.amb==='on');if(ambOn)ac()});
+function renderProPanel(){
+  const p=$('proPanel');p.hidden=!GATED;if(!GATED)return;
+  if(PRO.src){p.innerHTML=`<h2>Deuce Pro <span class="protag">On</span></h2><p class="sub">${PRO.src==='owner'?'Owner access. Every table, card back, stake and the coach are on for you, on any device you sign in to.':PRO.src==='tester'?'Tester access. Everything is unlocked. Thanks for helping test Deuce.':'Everything is unlocked. Thanks for supporting Deuce.'}</p>`;return}
+  p.innerHTML=`<h2>Deuce Pro</h2><p class="sub">Every game, daily chips, achievements and the friends table stay free. Pro adds:</p>
+    <ul class="prolist"><li><b>Blackjack strategy coach</b> with hints and a score</li><li><b>Sports-venue tables</b>: rink, field, court, green and diamond</li><li><b>Every felt, card back and stake</b> right away, no VIP wait</li><li><b>Bank history chart</b> with every high and low</li></ul>
+    <div class="row" style="justify-content:flex-start"><button class="btn primary" disabled>Coming soon</button></div>
+    <p class="sub">Already have Pro? Sign in to your account at the top of the Lounge.</p>`;
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-pro]');if(!b)return;e.stopPropagation();showPro()},true);
 $('lo').addEventListener('click',e=>{
   const b=e.target.closest('.pick');if(!b||b.disabled)return;
   if(b.dataset.felt)PROF.felt=b.dataset.felt;
