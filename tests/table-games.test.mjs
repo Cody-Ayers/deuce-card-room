@@ -38,6 +38,45 @@ test('every roulette bet has a 1/37 house edge', () => {
   }
 });
 
+test('recognizes every inside bet and rejects impossible ones', () => {
+  const kind = (k) => rouletteBet(k) && rouletteBet(k).kind;
+  assert.equal(kind('i:1-2'), 'Split');
+  assert.equal(kind('i:2-5'), 'Split');
+  assert.equal(kind('i:0-3'), 'Split');
+  assert.equal(kind('i:3-4'), null); // different rows
+  assert.equal(kind('i:1-5'), null);
+  assert.equal(kind('i:34-35'), 'Split');
+  assert.equal(kind('i:4-5-6'), 'Street');
+  assert.equal(kind('i:5-6-7'), null);
+  assert.equal(kind('i:0-1-2'), 'Trio');
+  assert.equal(kind('i:0-2-3'), 'Trio');
+  assert.equal(kind('i:0-1-3'), null);
+  assert.equal(kind('i:1-2-4-5'), 'Corner');
+  assert.equal(kind('i:2-3-5-6'), 'Corner');
+  assert.equal(kind('i:3-4-6-7'), null); // wraps across rows
+  assert.equal(kind('i:32-33-35-36'), 'Corner');
+  assert.equal(kind('i:0-1-2-3'), 'First four');
+  assert.equal(kind('i:1-2-3-4-5-6'), 'Six line');
+  assert.equal(kind('i:31-32-33-34-35-36'), 'Six line');
+  assert.equal(kind('i:2-3-4-5-6-7'), null);
+  assert.equal(kind('i:2-1'), null); // must be sorted
+  assert.equal(kind('i:36-37'), null);
+  assert.equal(rouletteBet('i:1-2').pay, 17);
+  assert.equal(rouletteBet('i:4-5-6').pay, 11);
+  assert.equal(rouletteBet('i:1-2-4-5').pay, 8);
+  assert.equal(rouletteBet('i:1-2-3-4-5-6').pay, 5);
+});
+
+test('inside bets also carry a 1/37 house edge', () => {
+  for (const k of ['i:0-1', 'i:17-20', 'i:0-1-2', 'i:13-14-15', 'i:0-1-2-3', 'i:20-21-23-24', 'i:7-8-9-10-11-12']) {
+    let back = 0;
+    for (let n = 0; n <= 36; n++) back += settleRoulette({ [k]: 1 }, n).back;
+    assert.ok(Math.abs(back / 37 - 36 / 37) < 1e-9, `${k}: ${back}/37`);
+  }
+  const r = settleRoulette({ 'i:16-17': 10, 'i:13-14-16-17': 10 }, 17);
+  assert.equal(r.back, 180 + 90);
+});
+
 test('roulette settles a mix of bets', () => {
   const r = settleRoulette({ n17: 10, black: 20, d1: 5, c2: 5 }, 17);
   // 17 is black, 2nd dozen, column 2 (17 % 3 === 2)
