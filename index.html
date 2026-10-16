@@ -609,7 +609,7 @@ body[data-felt="rink"] .table .real .propbox{background:rgba(19,35,58,.08)}
     <div class="panel"><h2>Card back</h2><div class="picks" id="backPicks"></div></div>
     <div class="panel"><h2>Hold’em table</h2><p class="sub">Higher stakes, bigger pots. The regulars buy in for 50 big blinds.</p><div class="picks" id="stakePicks"></div></div>
     <div class="panel"><h2>The regulars</h2><div id="regulars" class="sub"></div></div>
-    <div class="panel"><h2>Room</h2><div class="subbar" style="justify-content:flex-start">Background murmur <div class="seg" id="ambSeg"><button data-amb="on" aria-pressed="false">On</button><button data-amb="off" aria-pressed="true">Off</button></div></div><p class="sub">A quiet casino crowd under the game sounds. After 10 pm the room dims a little.</p></div>
+    <div class="panel"><h2>Room</h2><div class="subbar" style="justify-content:flex-start">Background murmur <div class="seg" id="ambSeg"><button data-amb="on" aria-pressed="false">On</button><button data-amb="off" aria-pressed="true">Off</button></div></div><p class="sub">A quiet casino crowd under the game sounds, with no extra chip noises. After 10 pm the room dims a little.</p></div>
   </section>
   <div class="row" id="refillRow" hidden><button class="btn primary" id="refill">Refill bank to 1,000</button></div>
 </div>
@@ -961,10 +961,9 @@ function startAmb(){const ctx=ac();if(!ctx||amb||!soundOn||!ambOn)return;
   const g=ctx.createGain();g.gain.value=.0001;g.gain.exponentialRampToValueAtTime(.09,ctx.currentTime+2);
   const lfo=ctx.createOscillator(),lg=ctx.createGain();lfo.frequency.value=.13;lg.gain.value=.025;lfo.connect(lg).connect(g.gain);lfo.start();
   src.connect(f).connect(g).connect(ctx.destination);src.start();
-  const clink=setInterval(()=>{if(Math.random()<.5)sfx('chip',0)},4200);
-  amb={src,g,lfo,clink};
+  amb={src,g,lfo};
 }
-function stopAmb(){if(!amb)return;try{amb.src.stop();amb.lfo.stop()}catch(e){}clearInterval(amb.clink);amb=null}
+function stopAmb(){if(!amb)return;try{amb.src.stop();amb.lfo.stop()}catch(e){}amb=null}
 function setAmb(on){ambOn=on;try{localStorage.setItem('dcr_amb',on?'on':'off')}catch(e){}if(on)startAmb();else stopAmb();
   document.querySelectorAll('#ambSeg button').forEach(b=>b.setAttribute('aria-pressed',(b.dataset.amb==='on')===on))}
 document.addEventListener('pointerdown',()=>{if(ambOn&&soundOn)setTimeout(startAmb,50)},{capture:true});
