@@ -69,7 +69,7 @@ h1{font-family:var(--f-display);font-weight:400;color:var(--ivory);text-shadow:0
 .bank .lbl{font-family:var(--f-body);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .bank .amt{font-size:20px;font-weight:600;color:var(--ivory)}
 .chipdot{width:18px;height:18px;border-radius:50%;background:var(--brass);border:3px dashed var(--ivory);box-sizing:border-box}
-.tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
 .tab{font-family:var(--f-display);font-size:clamp(13px,3.7vw,18px);padding-inline:2px!important;padding:10px 8px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
 .tab[aria-selected="true"]{background:var(--ivory);color:var(--rail-2);border-color:var(--ivory);box-shadow:inset 0 -4px 0 var(--felt)}
 .tab.locked{opacity:.45}
@@ -463,6 +463,61 @@ body[data-felt="rink"] .table .real .propbox{background:rgba(19,35,58,.08)}
 .wallet{font-family:var(--f-num);color:var(--muted);text-align:center}
 .wallet b{color:var(--ivory);font-size:17px}
 @media (prefers-reduced-motion:reduce){.card.deal,.die.tumble,.z.hint,.btn.hint{animation:none}}
+/* more games */
+.mseg{flex-wrap:wrap;justify-content:center;border-radius:18px}
+#moSeg button{padding:6px 11px;font-size:13px;text-transform:none;letter-spacing:0}
+.chipseg button{min-width:42px;font-family:var(--f-num)}
+.rc{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);min-width:24px;height:24px;padding:0 4px;border-radius:999px;background:#cdd5d8;color:#2a0a17;border:2px dashed #fff;font:600 10px/20px var(--f-num);box-sizing:border-box;pointer-events:none;z-index:2;text-align:center;box-shadow:0 2px 4px rgba(0,0,0,.45)}
+.rc:empty{display:none}
+.rotable{gap:8px;padding-block:12px}
+.rtop{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center}
+.rwheel{width:clamp(84px,24vw,124px);aspect-ratio:1;position:relative}
+.rwheel svg{width:100%;height:100%;display:block;overflow:visible}
+.rwheel .wg{transform-origin:50px 50px}
+.rwheel .ball{opacity:0;transition:opacity .25s}.rwheel.landed .ball{opacity:1}
+.rside{display:flex;flex-direction:column;gap:8px;min-width:0}
+.rresrow{display:flex;align-items:center;gap:10px;min-width:0}
+.rresrow .msg{text-align:left;font-size:14px}
+.rnum{flex:none;display:inline-grid;place-items:center;width:46px;height:46px;border-radius:12px;color:#fff;font:600 22px var(--f-num);box-shadow:inset 0 0 0 2px rgba(255,255,255,.35)}
+.rnum.red,.rhist .red{background:#b3263f}.rnum.black,.rhist .black{background:#16191c}.rnum.green,.rhist .green{background:#1f7a4d}.rnum.none{background:rgba(0,0,0,.25);color:var(--muted)}
+.rhist{display:flex;flex-wrap:wrap;gap:4px;min-height:22px}
+.rhist span{width:22px;height:22px;border-radius:6px;font:600 11px/22px var(--f-num);text-align:center;color:#fff}
+.rhist span:first-child{box-shadow:0 0 0 2px var(--ivory)}
+.rboard{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,.85fr) repeat(3,minmax(0,1.15fr));grid-template-rows:repeat(14,clamp(22px,3.05vh,34px));gap:3px}
+.rz{position:relative;border:1.5px solid color-mix(in srgb,var(--ivory) 55%,transparent);border-radius:5px;background:rgba(0,0,0,.1);color:var(--ivory);font:800 12px var(--f-body);display:grid;place-items:center;padding:0;cursor:pointer;min-width:0;line-height:1.05;text-align:center}
+.rz.num{font:600 14px var(--f-num);color:#fff;border-color:rgba(255,255,255,.4)}
+.rz.num.red{background:#b3263f}.rz.num.black{background:#16191c}.rz.green{background:#1f7a4d;color:#fff;font:600 15px var(--f-num)}
+.rz.lbl{border:0;background:none;cursor:default;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.rz.hit{box-shadow:0 0 0 3px #fff;z-index:3}
+.rz.won{box-shadow:0 0 0 2px var(--win);z-index:2}
+.dia{width:13px;height:13px;transform:rotate(45deg);display:inline-block;border:1.5px solid rgba(255,255,255,.75)}
+.dia.red{background:#b3263f}.dia.black{background:#16191c}
+.tcspots{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.tspot{font:600 12px var(--f-num);border:1.5px solid var(--line);border-radius:999px;padding:4px 10px;color:var(--muted);background:rgba(0,0,0,.18)}
+.tspot b{color:var(--ivory)}.tspot.win{border-color:var(--win)}.tspot.win b{color:var(--win)}.tspot.lose{opacity:.55}
+.bahands{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.bahands .phand{min-width:0;padding-inline:2px}
+.bahands .card{--cw:clamp(40px,min(12vw,7vh),64px)}
+.bahands .phand.won{border-color:var(--win);background:rgba(143,209,158,.08)}
+.baspots{display:grid;grid-template-columns:1fr .8fr 1fr;gap:6px}
+.baspots .z{min-height:clamp(52px,7.5vh,66px);font-size:15px}
+.baspots .rc{top:-9px;left:auto;right:-6px;transform:none}
+.baspots .z.won{border-color:var(--win);box-shadow:0 0 0 2px var(--win)}.baspots .z.lost{opacity:.55}
+.bz-p{background:rgba(35,97,146,.35)!important}.bz-b{background:rgba(140,42,74,.35)!important}.bz-t{background:rgba(31,122,77,.3)!important}
+.road{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;min-height:14px}
+.road i{width:14px;height:14px;border-radius:50%;font:700 8px/14px var(--f-body);color:#fff;text-align:center;font-style:normal}
+.road .P{background:#2a74ad}.road .B{background:#b3263f}.road .T{background:#2f9e5f}
+.vptable{width:100%;border-collapse:collapse;font:600 clamp(11px,3.1vw,13px)/1.25 var(--f-num);color:var(--ivory);background:rgba(0,0,0,.22);border-radius:10px;overflow:hidden}
+.vptable td{padding:2px 10px}.vptable td:last-child{text-align:right;color:var(--brass)}
+.vptable tr.hit td{background:var(--ivory);color:var(--ink)}
+.vphand{display:flex;justify-content:center;gap:clamp(4px,1.6vw,8px)}
+.vphand .card{--cw:clamp(50px,min(16.5vw,9.5vh),84px);transition:transform .15s}
+.vpc{background:none;border:0;padding:0;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;font:inherit}
+.vpc:disabled{cursor:default}
+.vpc .held{font:800 10px var(--f-body);letter-spacing:.14em;color:var(--brass);visibility:hidden}
+.vpc.on .held{visibility:visible}.vpc.on .card{transform:translateY(-6px);box-shadow:0 0 0 3px var(--brass),0 6px 12px rgba(0,0,0,.4)}
+@media (max-width:380px){.tab{font-size:12px}#moSeg button{padding:5px 8px;font-size:12px}}
+
 </style>
 
 <div class="wrap">
@@ -478,6 +533,7 @@ body[data-felt="rink"] .table .real .propbox{background:rgba(19,35,58,.08)}
     <button class="tab" role="tab" id="tabBJ" aria-selected="true">Blackjack</button>
     <button class="tab" role="tab" id="tabHE" aria-selected="false">Hold’em</button>
     <button class="tab" role="tab" id="tabCR" aria-selected="false">Craps</button>
+    <button class="tab" role="tab" id="tabMO" aria-selected="false">More</button>
     <button class="tab" role="tab" id="tabLO" aria-selected="false">Lounge</button>
   </div>
   <div class="toast" id="toast"></div>
@@ -593,6 +649,100 @@ body[data-felt="rink"] .table .real .propbox{background:rgba(19,35,58,.08)}
       <div class="row"><button class="btn ghost" id="crClear">Clear bets</button><button class="btn primary" id="crRoll">Roll dice</button></div>
     </div>
     <div class="crlog" id="crLog"></div>
+  </section>
+  <!-- MORE GAMES -->
+  <section id="mo" hidden>
+    <div class="subbar compact"><div class="seg mseg" id="moSeg"><button data-mg="ro" aria-pressed="true">Roulette</button><button data-mg="tc" aria-pressed="false">Three Card</button><button data-mg="ba" aria-pressed="false">Baccarat</button><button data-mg="vp" aria-pressed="false">Video Poker</button></div></div>
+
+    <div id="mgRO">
+      <div class="table rotable">
+        <div class="rtop">
+          <div class="rwheel" id="rWheel" aria-hidden="true"></div>
+          <div class="rside">
+            <div class="rresrow"><span class="rnum none" id="rRes">–</span><span class="msg" id="roMsg">Place your chips, then spin</span></div>
+            <div class="rhist" id="rHist" aria-label="Last numbers"></div>
+          </div>
+        </div>
+        <div class="say" id="roSay"></div>
+        <div class="rboard" id="rBoard"></div>
+      </div>
+      <div class="dock">
+        <div class="wallet" id="roWallet"></div>
+        <div class="row"><div class="seg chipseg" id="roChips"></div></div>
+        <div class="row"><button class="btn ghost" id="roClear">Clear</button><button class="btn ghost" id="roUndo">Undo</button><button class="btn primary" id="roSpin">Spin</button></div>
+      </div>
+      <div class="note">Single-zero wheel · Straight up pays 35 to 1 · Dozens and columns 2 to 1 · Red, black, odd, even, 1–18, 19–36 pay 1 to 1</div>
+    </div>
+
+    <div id="mgTC" hidden>
+      <div class="table">
+        <div class="zone"><div class="zlabel">Dealer <span class="total" id="tcDName" hidden></span></div><div class="hand" id="tcDHand"></div></div>
+        <svg class="arc" viewBox="0 0 440 70" aria-hidden="true"><path id="tcArc" d="M20,12 Q220,78 420,12" fill="none"/><text><textPath href="#tcArc" startOffset="50%" text-anchor="middle">DEALER PLAYS WITH QUEEN HIGH OR BETTER</textPath></text></svg>
+        <div class="msg" id="tcMsg">Bet the Ante, then deal</div>
+        <div class="say" id="tcSay"></div>
+        <div class="zone"><div class="zlabel">You <span class="total" id="tcPName" hidden></span></div><div class="hand" id="tcPHand"></div></div>
+        <div class="tcspots" id="tcSpots"></div>
+      </div>
+      <div class="dock">
+        <div id="tcBet" class="dockin">
+          <div class="betrow"><span class="betline">Ante <b id="tcAnte">25</b></span><span class="side">Pair Plus <div class="seg" id="tcPP"><button data-pp="0" aria-pressed="true">Off</button><button data-pp="5" aria-pressed="false">5</button><button data-pp="25" aria-pressed="false">25</button><button data-pp="100" aria-pressed="false">100</button></div></span></div>
+          <div class="row chips">
+            <button class="chip c5" data-tcc="5">5</button><button class="chip c25" data-tcc="25">25</button><button class="chip c100" data-tcc="100">100</button><button class="chip c500" data-tcc="500">500</button><button class="chip c1000" data-tcc="1000" hidden>1K</button>
+          </div>
+          <div class="row"><button class="btn ghost" id="tcClear">Clear</button><button class="btn primary" id="tcDeal">Deal</button></div>
+        </div>
+        <div id="tcPlay" class="dockin" hidden>
+          <div class="note" id="tcTip">Rule of thumb: play Queen-6-4 or better, fold anything worse.</div>
+          <div class="row acts"><button class="btn ghost" id="tcFold">Fold</button><button class="btn primary" id="tcPlayBtn">Play</button></div>
+        </div>
+      </div>
+      <div class="note">Play bet equals the Ante · Ante bonus: straight 1, trips 4, straight flush 5 · Pair Plus: pair 1, flush 4, straight 6, trips 30, straight flush 40</div>
+    </div>
+
+    <div id="mgBA" hidden>
+      <div class="table">
+        <div class="bahands">
+          <div class="phand" id="baPZone"><div class="zlabel">Player <span class="total" id="baPT" hidden></span></div><div class="hand" id="baPHand"></div></div>
+          <div class="phand" id="baBZone"><div class="zlabel">Banker <span class="total" id="baBT" hidden></span></div><div class="hand" id="baBHand"></div></div>
+        </div>
+        <div class="msg" id="baMsg">Bet Player, Banker or Tie</div>
+        <div class="say" id="baSay"></div>
+        <div class="baspots">
+          <button class="z bz-p" data-bb="player">PLAYER<small>pays 1 to 1</small><span class="rc"></span></button>
+          <button class="z bz-t" data-bb="tie">TIE<small>pays 8 to 1</small><span class="rc"></span></button>
+          <button class="z bz-b" data-bb="banker">BANKER<small>1 to 1, less 5%</small><span class="rc"></span></button>
+        </div>
+        <div class="road" id="baRoad" aria-label="Recent results"></div>
+      </div>
+      <div class="dock">
+        <div class="wallet" id="baWallet"></div>
+        <div class="row"><div class="seg chipseg" id="baChips"></div></div>
+        <div class="row"><button class="btn ghost" id="baClear">Clear</button><button class="btn ghost" id="baUndo">Undo</button><button class="btn primary" id="baDeal">Deal</button></div>
+      </div>
+      <div class="note">8-deck shoe · The dealer draws third cards by the standard rules · A tie pushes Player and Banker bets</div>
+    </div>
+
+    <div id="mgVP" hidden>
+      <div class="table">
+        <table class="vptable" id="vpPay"></table>
+        <div class="msg" id="vpMsg">Bet, then deal five cards</div>
+        <div class="vphand" id="vpHand"></div>
+      </div>
+      <div class="dock">
+        <div id="vpBet" class="dockin">
+          <div class="betrow"><span class="betline">Bet <b id="vpBetAmt">25</b></span></div>
+          <div class="row chips">
+            <button class="chip c5" data-vpc="5">5</button><button class="chip c25" data-vpc="25">25</button><button class="chip c100" data-vpc="100">100</button><button class="chip c500" data-vpc="500">500</button><button class="chip c1000" data-vpc="1000" hidden>1K</button>
+          </div>
+          <div class="row"><button class="btn ghost" id="vpClear">Clear</button><button class="btn primary" id="vpDeal">Deal</button></div>
+        </div>
+        <div id="vpDraw" class="dockin" hidden>
+          <div class="note">Tap the cards you want to keep, then draw.</div>
+          <div class="row"><button class="btn primary" id="vpDrawBtn">Draw</button></div>
+        </div>
+      </div>
+      <div class="note">Jacks or Better · Pays are “for 1”: a pair of jacks or better gives your bet back</div>
+    </div>
   </section>
   <!-- LOUNGE -->
   <section id="lo" hidden>
@@ -833,7 +983,96 @@ function settleCraps(s,a,b){
   return{L,net};
 }
 
-return {fmt,val,isBJ,UP,upName,strategy,P5,CAT,eval5,combos,best,catName,equity,PLACE_PAY,PLACE_TXT,PLACE_EDGE,ODDS_PAY,ODDS_TXT,ODDS_MAX,NUMS,NUMW,WAYS,INFO,LAY_PAY,LAY_TXT,HARD_PAY,PROPS,settleCraps};
+/* ---------- Roulette (single zero) ---------- */
+const R_RED=new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
+const R_WHEEL=[0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
+const rColor=n=>n===0?'green':R_RED.has(n)?'red':'black';
+const R_OUT={
+  red:{n:'Red',pay:1,hit:n=>R_RED.has(n)},black:{n:'Black',pay:1,hit:n=>n>0&&!R_RED.has(n)},
+  odd:{n:'Odd',pay:1,hit:n=>n>0&&n%2===1},even:{n:'Even',pay:1,hit:n=>n>0&&n%2===0},
+  low:{n:'1 to 18',pay:1,hit:n=>n>=1&&n<=18},high:{n:'19 to 36',pay:1,hit:n=>n>=19},
+  d1:{n:'1st 12',pay:2,hit:n=>n>=1&&n<=12},d2:{n:'2nd 12',pay:2,hit:n=>n>=13&&n<=24},d3:{n:'3rd 12',pay:2,hit:n=>n>=25},
+  c1:{n:'Column 1',pay:2,hit:n=>n>0&&n%3===1},c2:{n:'Column 2',pay:2,hit:n=>n>0&&n%3===2},c3:{n:'Column 3',pay:2,hit:n=>n>0&&n%3===0}
+};
+function rouletteBet(key){
+  if(R_OUT[key])return R_OUT[key];
+  const m=/^n(\d{1,2})$/.exec(key);if(!m)return null;const v=+m[1];if(v>36)return null;
+  return{n:`Straight up ${v}`,pay:35,hit:n=>n===v};
+}
+function settleRoulette(bets,n){
+  let back=0,staked=0;const lines=[];
+  for(const [k,amt] of Object.entries(bets)){const b=rouletteBet(k);if(!b||!(amt>0))continue;staked+=amt;
+    if(b.hit(n)){const w=amt*b.pay;back+=amt+w;lines.push({k,n:b.n,amt,win:w})}else lines.push({k,n:b.n,amt,win:-amt})}
+  return{back,staked,net:back-staked,lines};
+}
+
+/* ---------- Three Card Poker ---------- */
+const TC_CAT=['High card','Pair','Flush','Straight','Three of a kind','Straight flush'];
+function eval3(c){
+  const rs=c.map(x=>x.r).sort((a,b)=>b-a);
+  const flush=c[0].s===c[1].s&&c[1].s===c[2].s;
+  let sh=0;if(rs[0]!==rs[1]&&rs[1]!==rs[2]){if(rs[0]-rs[2]===2)sh=rs[0];else if(rs[0]===14&&rs[1]===3&&rs[2]===2)sh=3}
+  let cat,tb;
+  if(rs[0]===rs[2]){cat=4;tb=[rs[0]]}
+  else if(sh&&flush){cat=5;tb=[sh]}
+  else if(sh){cat=3;tb=[sh]}
+  else if(flush){cat=2;tb=rs}
+  else if(rs[0]===rs[1]||rs[1]===rs[2]){cat=1;const pr=rs[1],k=rs[0]===rs[1]?rs[2]:rs[0];tb=[pr,k]}
+  else{cat=0;tb=rs}
+  let s=cat;for(let k=0;k<3;k++)s=s*15+(tb[k]||0);return s;
+}
+const tcCat=s=>Math.floor(s/3375);
+const TC_PAIRPLUS={1:1,2:4,3:6,4:30,5:40};
+const TC_BONUS={3:1,4:4,5:5};
+const tcQualifies=s=>tcCat(s)>0||Math.floor(s/225)%15>=12;
+const tcShouldPlay=s=>s>=eval3([{r:12,s:0},{r:6,s:1},{r:4,s:2}]);
+function settleThreeCard(b,player,dealer){
+  const ps=eval3(player),ds=eval3(dealer),pc=tcCat(ps),L=[];let back=0;
+  if(b.pp>0){const m=TC_PAIRPLUS[pc];if(m){back+=b.pp*(m+1);L.push({n:'Pair Plus',win:b.pp*m,why:`${TC_CAT[pc]} pays ${m} to 1`})}else L.push({n:'Pair Plus',win:-b.pp,why:'needs a pair or better'})}
+  if(b.fold){L.push({n:'Ante',win:-b.ante,why:'folded'});return{back,ps,ds,pc,dq:tcQualifies(ds),L,out:'fold'}}
+  const play=b.ante,dq=tcQualifies(ds);let out;
+  const bm=TC_BONUS[pc];if(bm){back+=b.ante*bm;L.push({n:'Ante bonus',win:b.ante*bm,why:`${TC_CAT[pc]} pays ${bm} to 1`})}
+  if(!dq){back+=b.ante*2+play;out='dq';L.push({n:'Ante',win:b.ante,why:'dealer doesn’t qualify'},{n:'Play',win:0,why:'pushes'})}
+  else if(ps>ds){back+=b.ante*2+play*2;out='win';L.push({n:'Ante',win:b.ante,why:'you beat the dealer'},{n:'Play',win:play,why:'you beat the dealer'})}
+  else if(ps===ds){back+=b.ante+play;out='push';L.push({n:'Ante',win:0,why:'tie'},{n:'Play',win:0,why:'tie'})}
+  else{out='lose';L.push({n:'Ante',win:-b.ante,why:'dealer’s hand is better'},{n:'Play',win:-play,why:'dealer’s hand is better'})}
+  return{back,ps,ds,pc,dq,L,out};
+}
+
+/* ---------- Baccarat (punto banco) ---------- */
+const bacV=c=>c.r===14?1:c.r>=10?0:c.r;
+const bacTotal=cs=>cs.reduce((a,c)=>a+bacV(c),0)%10;
+function bankerDraws(bt,p3){
+  if(p3==null)return bt<=5;
+  const v=bacV(p3);
+  if(bt<=2)return true;if(bt===3)return v!==8;if(bt===4)return v>=2&&v<=7;if(bt===5)return v>=4&&v<=7;if(bt===6)return v===6||v===7;return false;
+}
+function bacPlay(draw){
+  const p=[draw()],b=[draw()];p.push(draw());b.push(draw());
+  const natural=bacTotal(p)>=8||bacTotal(b)>=8;
+  if(!natural){let p3=null;if(bacTotal(p)<=5){p3=draw();p.push(p3)}if(bankerDraws(bacTotal(b),p3))b.push(draw())}
+  const pt=bacTotal(p),bt=bacTotal(b);
+  return{p,b,pt,bt,natural,win:pt>bt?'player':bt>pt?'banker':'tie'};
+}
+const BAC_PAY={player:1,banker:.95,tie:8};
+function settleBaccarat(bets,win){
+  let back=0;const L=[];
+  for(const k of ['player','banker','tie']){const a=bets[k];if(!(a>0))continue;
+    if(win==='tie'&&k!=='tie'){back+=a;L.push({k,win:0})}
+    else if(k===win){const w=Math.floor(a*BAC_PAY[k]);back+=a+w;L.push({k,win:w})}
+    else L.push({k,win:-a})}
+  return{back,L};
+}
+
+/* ---------- Video poker (Jacks or Better, 9/6) ---------- */
+const VP_PAY=[['Royal flush',800],['Straight flush',50],['Four of a kind',25],['Full house',9],['Flush',6],['Straight',4],['Three of a kind',3],['Two pair',2],['Jacks or better',1]];
+function vpHand(cards){
+  const s=eval5(cards),cat=Math.floor(s/P5),top=Math.floor(s/15**4)%15;
+  const i=cat===8?(top===14?0:1):cat===7?2:cat===6?3:cat===5?4:cat===4?5:cat===3?6:cat===2?7:cat===1&&top>=11?8:-1;
+  return i<0?{i,n:'No win',mult:0}:{i,n:VP_PAY[i][0],mult:VP_PAY[i][1]};
+}
+
+return {fmt,val,isBJ,UP,upName,strategy,P5,CAT,eval5,combos,best,catName,equity,PLACE_PAY,PLACE_TXT,PLACE_EDGE,ODDS_PAY,ODDS_TXT,ODDS_MAX,NUMS,NUMW,WAYS,INFO,LAY_PAY,LAY_TXT,HARD_PAY,PROPS,settleCraps,R_RED,R_WHEEL,rColor,R_OUT,rouletteBet,settleRoulette,TC_CAT,eval3,tcCat,TC_PAIRPLUS,TC_BONUS,tcQualifies,tcShouldPlay,settleThreeCard,bacV,bacTotal,bankerDraws,bacPlay,BAC_PAY,settleBaccarat,VP_PAY,vpHand};
 })();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.1/dist/umd/supabase.js"></script>
@@ -841,7 +1080,7 @@ return {fmt,val,isBJ,UP,upName,strategy,P5,CAT,eval5,combos,best,catName,equity,
 <script>
 (()=>{
 const $=id=>document.getElementById(id);
-const {fmt,val,isBJ,UP,upName,strategy,P5,CAT,eval5,combos,best,catName,equity,PLACE_PAY,PLACE_TXT,PLACE_EDGE,ODDS_PAY,ODDS_TXT,ODDS_MAX,NUMS,NUMW,WAYS,INFO,LAY_PAY,LAY_TXT,HARD_PAY,PROPS,settleCraps}=window.DCR;
+const {fmt,val,isBJ,UP,upName,strategy,P5,CAT,eval5,combos,best,catName,equity,PLACE_PAY,PLACE_TXT,PLACE_EDGE,ODDS_PAY,ODDS_TXT,ODDS_MAX,NUMS,NUMW,WAYS,INFO,LAY_PAY,LAY_TXT,HARD_PAY,PROPS,settleCraps,R_WHEEL,rColor,rouletteBet,settleRoulette,TC_CAT,eval3,tcCat,tcQualifies,tcShouldPlay,settleThreeCard,bacTotal,bacPlay,settleBaccarat,VP_PAY,vpHand}=window.DCR;
 const SUITS=['♠','♥','♦','♣'];
 const rl=r=>({11:'J',12:'Q',13:'K',14:'A'})[r]||String(r);
 let uidN=0;const uid=()=>++uidN;
@@ -873,6 +1112,7 @@ function sfx(kind,delayMs=0){
   if(kind==='card'){noise(ctx,t,.07,2600,.9,.5)}
   else if(kind==='chip'){noise(ctx,t,.024,2100,1.4,.55);noise(ctx,t+.038,.02,2500,1.6,.32);tone(ctx,t,190,.05,'sine',.09,110)}
   else if(kind==='dice'){for(let k=0;k<7;k++){const dt=k*.06+Math.random()*.03;noise(ctx,t+dt,.035,1400+Math.random()*1400,3,.55-k*.05)}}
+  else if(kind==='spin'){let dt=0;for(let k=0;k<34;k++){dt+=.045+k*k*.0016;noise(ctx,t+dt,.014,3000+Math.random()*900,2.2,.3*(1-k/40))}}
   else if(kind==='win'){[523,659,784].forEach((f,k)=>tone(ctx,t+k*.09,f,.22,'triangle',.16))}
   else if(kind==='lose'){tone(ctx,t,330,.35,'sine',.13,196)}
   else if(kind==='push'){tone(ctx,t,440,.18,'sine',.1)}
@@ -962,6 +1202,11 @@ const ACH=[
   {k:'longroll',g:'Craps',n:'Long roll',d:'20 rolls before a seven-out.'},
   {k:'perfect',g:'Blackjack',n:'Perfect',d:'Hit a perfect pair on the side bet.'},
   {k:'badbeat',g:'Hold’em',n:'Bad beat',d:'Collect the bad beat jackpot.'},
+  {k:'straightup',g:'Roulette',n:'Straight up',d:'Hit a single number on the roulette wheel.'},
+  {k:'tcrun',g:'Three Card',n:'Run it',d:'Get a straight or better in Three Card Poker.'},
+  {k:'natural9',g:'Baccarat',n:'La grande',d:'Win a baccarat bet on a natural 9.'},
+  {k:'quads',g:'Video Poker',n:'Four of a kind',d:'Hit four of a kind or better in video poker.'},
+  {k:'tour',g:'Lounge',n:'Grand tour',d:'Play every game in the room.'},
   {k:'scratch',g:'Lounge',n:'Scratcher',d:'Win 250 or more on a scratch card.'},
   {k:'puzzler',g:'Lounge',n:'Puzzler',d:'Solve 5 daily puzzles.'},
   {k:'silver',g:'Lounge',n:'Silver service',d:'Reach Silver VIP.'},
@@ -1021,18 +1266,18 @@ let tab='bj';
 const TQ=[];let tBusy=false;
 function toast(t,priority){if(priority){TQ.push(t);if(!tBusy)nextToast();return}if(tBusy&&TQ.length)return;$('toast').textContent=t;clearTimeout(toast.t);tBusy=false;toast.t=setTimeout(()=>{$('toast').textContent='';nextToast()},2200)}
 function nextToast(){const t=TQ.shift();if(!t){tBusy=false;return}tBusy=true;$('toast').textContent=t;clearTimeout(toast.t);toast.t=setTimeout(()=>{$('toast').textContent='';nextToast()},2800)}
-function busyTab(t){return t==='bj'?bjBusy():t==='he'?(HE.active&&HM==='bots'):false}
+function busyTab(t){return t==='bj'?bjBusy():t==='he'?(HE.active&&HM==='bots'):t==='mo'?moBusy():false}
 let HM='bots';
 function setTab(t){
   if(t===tab)return;
-  if(busyTab(tab)){toast(tab==='bj'?'Finish this blackjack hand first':'Finish this poker hand first (you can fold)');return}
+  if(busyTab(tab)){toast(tab==='bj'?'Finish this blackjack hand first':tab==='mo'?'Let this one finish first':'Finish this poker hand first (you can fold)');return}
   tab=t;
-  for(const k of ['bj','he','cr','lo']){$(k).hidden=k!==t;$('tab'+k.toUpperCase()).setAttribute('aria-selected',k===t)}
+  for(const k of ['bj','he','cr','mo','lo']){$(k).hidden=k!==t;$('tab'+k.toUpperCase()).setAttribute('aria-selected',k===t)}
   if(t==='bj'){if(BJ.phase==='bet'||BJ.phase==='done')BJ.bet=Math.min(BJ.bet||50,bank);renderBJ()}
-  else if(t==='he'){renderHE();renderLive()}else if(t==='cr')renderCR();else renderLounge();
+  else if(t==='he'){renderHE();renderLive()}else if(t==='cr')renderCR();else if(t==='mo')renderMO();else renderLounge();
 }
-$('tabBJ').onclick=()=>setTab('bj');$('tabHE').onclick=()=>setTab('he');$('tabCR').onclick=()=>setTab('cr');$('tabLO').onclick=()=>setTab('lo');
-function renderTabs(){for(const k of ['bj','he','cr','lo'])$('tab'+k.toUpperCase()).classList.toggle('locked',k!==tab&&busyTab(tab))}
+$('tabBJ').onclick=()=>setTab('bj');$('tabHE').onclick=()=>setTab('he');$('tabCR').onclick=()=>setTab('cr');$('tabMO').onclick=()=>setTab('mo');$('tabLO').onclick=()=>setTab('lo');
+function renderTabs(){for(const k of ['bj','he','cr','mo','lo'])$('tab'+k.toUpperCase()).classList.toggle('locked',k!==tab&&busyTab(tab))}
 
 /* deck picker */
 function setDeck(d){document.body.dataset.deck=d;document.querySelectorAll('[data-deck]').forEach(b=>{if(b.tagName==='BUTTON')b.setAttribute('aria-pressed',b.dataset.deck===d)});try{localStorage.setItem('dcr_deck',d)}catch(e){}}
@@ -2005,6 +2250,238 @@ document.querySelectorAll('#heMode button').forEach(b=>b.onclick=()=>{
   renderSocial();renderLive();
 })();
 
+/* =================== MORE GAMES =================== */
+const MO={g:'ro',chip:25};
+try{const g=localStorage.getItem('dcr_more');if(['ro','tc','ba','vp'].includes(g))MO.g=g}catch(e){}
+const moBusy=()=>RO.spin||BA.dealing;
+const shortAmt=v=>v>=10000?Math.round(v/1000)+'K':v>=1000?(Math.round(v/100)/10)+'K':String(v);
+function moChips(id){
+  const v=[5,25,100,500].concat(effLvl()>=2?[1000]:[]);if(!v.includes(MO.chip))MO.chip=25;
+  $(id).innerHTML=v.map(x=>`<button data-mc="${x}" aria-pressed="${x===MO.chip}">${x>=1000?'1K':x}</button>`).join('');
+}
+function moSay(id,who,line){$(id).innerHTML=line?`<b>${who}</b>${line}`:''}
+function moDone(key,net,bet){
+  rec('moWin',net);count(key);histPush();
+  if(net>=500)brag(`won ${fmt(net)} at ${MO_NAMES[MO.g]}`);
+  const C=PROF.cnt;if(['bjHands','heHands','crRolls','roSpins','tcHands','baHands','vpHands'].every(k=>C[k]>0))ach('tour');
+}
+const MO_NAMES={ro:'Roulette',tc:'Three Card Poker',ba:'Baccarat',vp:'Video Poker'};
+function setMoGame(g){
+  if(g===MO.g)return;if(moBusy()){toast('Let this one finish first');return}
+  MO.g=g;try{localStorage.setItem('dcr_more',g)}catch(e){}renderMO();
+}
+document.querySelectorAll('#moSeg button').forEach(b=>b.onclick=()=>setMoGame(b.dataset.mg));
+$('mo').addEventListener('click',e=>{const b=e.target.closest('[data-mc]');if(!b)return;MO.chip=+b.dataset.mc;sfx('chip');renderMO()});
+function renderMO(){
+  document.querySelectorAll('#moSeg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mg===MO.g));
+  for(const k of ['ro','tc','ba','vp'])$('mg'+k.toUpperCase()).hidden=k!==MO.g;
+  if(MO.g==='ro')renderRO();else if(MO.g==='tc')renderTC();else if(MO.g==='ba')renderBA();else renderVP();
+  renderBank();renderTabs();
+}
+
+/* ---------- roulette ---------- */
+const RO={bets:{},order:[],last:null,spin:false,hist:[],rot:0,hit:null,won:new Set()};
+const RO_SAY={spin:['No more bets.','Ball’s in.','Round she goes.','Here we go. Good luck.'],
+  win:['Winner. Paying you now.','There it is!','Nice spot. Let it ride?','The wheel likes you tonight.'],
+  lose:['House takes that one.','So close. Board’s open.','Unlucky. Next spin.'],
+  zero:['Zero, the green. House number.'],
+  straight:['Straight up! That’s 35 to 1.','Right on the number!']};
+const roTotal=()=>Object.values(RO.bets).reduce((a,b)=>a+b,0);
+const RCOL={red:'#b3263f',black:'#16191c',green:'#1f7a4d'};
+function buildRO(){
+  const a=360/37,P=(ang,r)=>[50+r*Math.cos((ang-90)*Math.PI/180),50+r*Math.sin((ang-90)*Math.PI/180)].map(v=>v.toFixed(2));
+  let g='';
+  R_WHEEL.forEach((n,i)=>{const a0=(i-.5)*a,a1=(i+.5)*a;const [x0,y0]=P(a0,48),[x1,y1]=P(a1,48),[x2,y2]=P(a1,31),[x3,y3]=P(a0,31);
+    g+=`<path d="M${x0} ${y0}A48 48 0 0 1 ${x1} ${y1}L${x2} ${y2}A31 31 0 0 0 ${x3} ${y3}Z" fill="${RCOL[rColor(n)]}" stroke="#cdd5d8" stroke-width=".35"/>`+
+       `<text x="50" y="9.4" transform="rotate(${(i*a).toFixed(2)} 50 50)" text-anchor="middle" font-size="5.2" font-family="IBM Plex Mono,monospace" font-weight="600" fill="#fff">${n}</text>`});
+  $('rWheel').innerHTML=`<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="49.5" fill="#2a0a17" stroke="#cdd5d8" stroke-width="1"/><g class="wg" id="rWg">${g}<circle cx="50" cy="50" r="31" fill="#45101f" stroke="#cdd5d8" stroke-width=".6"/><circle cx="50" cy="50" r="20" fill="#6f263d"/>${[0,1,2,3].map(k=>`<rect x="48.6" y="33" width="2.8" height="34" rx="1.4" fill="#cdd5d8" transform="rotate(${k*45} 50 50)"/>`).join('')}<circle cx="50" cy="50" r="5" fill="#cdd5d8"/></g><path d="M46.5 -4 L53.5 -4 L50 3.5Z" fill="#f6f7f8" stroke="#2a0a17" stroke-width=".8"/><circle class="ball" cx="50" cy="14" r="2.6" fill="#fff" stroke="#888" stroke-width=".4"/></svg>`;
+  let h='<div class="rz lbl" style="grid-column:1/3;grid-row:1">Single<br>zero</div><button class="rz green" data-rb="n0" style="grid-column:3/6;grid-row:1">0<span class="rc"></span></button>';
+  for(let r=0;r<12;r++)for(let j=0;j<3;j++){const n=3*r+j+1;h+=`<button class="rz num ${rColor(n)}" data-rb="n${n}" style="grid-column:${3+j};grid-row:${r+2}" aria-label="${n} ${rColor(n)}">${n}<span class="rc"></span></button>`}
+  ['1st 12','2nd 12','3rd 12'].forEach((t,k)=>h+=`<button class="rz" data-rb="d${k+1}" style="grid-column:2;grid-row:${2+4*k}/span 4">${t.replace(' ','<br>')}<span class="rc"></span></button>`);
+  [['low','1–18'],['even','Even'],['red','<i class="dia red" aria-label="Red"></i>'],['black','<i class="dia black" aria-label="Black"></i>'],['odd','Odd'],['high','19–36']].forEach(([k,t],i)=>h+=`<button class="rz" data-rb="${k}" style="grid-column:1;grid-row:${2+2*i}/span 2">${t}<span class="rc"></span></button>`);
+  h+='<div class="rz lbl" style="grid-column:1/3;grid-row:14">Columns</div>';
+  for(let j=0;j<3;j++)h+=`<button class="rz" data-rb="c${j+1}" style="grid-column:${3+j};grid-row:14">2 to 1<span class="rc"></span></button>`;
+  $('rBoard').innerHTML=h;
+}
+buildRO();
+$('rBoard').addEventListener('click',e=>{
+  const b=e.target.closest('[data-rb]');if(!b||RO.spin)return;
+  if(roTotal()+MO.chip>bank){toast('Not enough in your bank for that chip');return}
+  if(RO.hit!==null){RO.hit=null;RO.won.clear()}
+  const k=b.dataset.rb;RO.bets[k]=(RO.bets[k]||0)+MO.chip;RO.order.push([k,MO.chip]);sfx('chip');renderRO();
+});
+$('roClear').onclick=()=>{if(RO.spin)return;RO.bets={};RO.order=[];renderRO()};
+$('roUndo').onclick=()=>{if(RO.spin)return;
+  if(RO.order.length){const [k,v]=RO.order.pop();RO.bets[k]-=v;if(RO.bets[k]<=0)delete RO.bets[k]}
+  else if(RO.last){const t=Object.values(RO.last).reduce((a,b)=>a+b,0);if(t>bank){toast('Not enough in your bank to rebet');return}
+    RO.bets={...RO.last};RO.order=Object.entries(RO.bets);RO.hit=null;RO.won.clear();sfx('chip')}
+  renderRO()};
+$('roSpin').onclick=async()=>{
+  const tot=roTotal();if(RO.spin||!tot)return;if(tot>bank){toast('Not enough in your bank');return}
+  RO.spin=true;RO.last={...RO.bets};bank-=tot;saveBank();addXP(tot);RO.hit=null;RO.won.clear();
+  moSay('roSay','Croupier',pick(RO_SAY.spin));
+  const n=Math.floor(Math.random()*37),i=R_WHEEL.indexOf(n),a=360/37;
+  const target=-i*a,cur=RO.rot,next=cur+360*5+((((target-cur)%360)+360)%360);RO.rot=next;
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches,dur=reduce?700:3600;
+  $('rWheel').classList.remove('landed');$('rRes').className='rnum none';$('rRes').textContent='…';$('roMsg').textContent='Spinning…';
+  const wg=$('rWg');wg.style.transition=`transform ${dur}ms cubic-bezier(.13,.62,.14,1)`;wg.style.transform=`rotate(${next}deg)`;
+  sfx('spin');renderRO();showTable('mo');
+  await sleep(dur+120);
+  const r=settleRoulette(RO.bets,n);bank+=r.back;saveBank();
+  RO.hit=n;RO.hist.unshift(n);RO.hist=RO.hist.slice(0,14);
+  for(const l of r.lines)if(l.win>0)RO.won.add(l.k);
+  const col=rColor(n),straight=r.lines.some(l=>l.k.startsWith('n')&&l.win>0);
+  const desc=n===0?'0, green':`${n} ${col}${n%2?', odd':', even'}`;
+  RO.msg=`${desc}. `+(r.net>0?`You won ${fmt(r.net)}.`:r.net<0?`You lost ${fmt(-r.net)}.`:'You broke even.');
+  moSay('roSay','Croupier',pick(straight?RO_SAY.straight:n===0&&r.net<0?RO_SAY.zero:r.net>0?RO_SAY.win:RO_SAY.lose));
+  sfx(straight?'big':r.net>0?'win':r.net<0?'lose':'push');
+  if(straight)ach('straightup');
+  RO.bets={};RO.order=[];RO.spin=false;$('rWheel').classList.add('landed');
+  moDone('roSpins',r.net,tot);renderMO();
+};
+function renderRO(){
+  moChips('roChips');
+  document.querySelectorAll('#rBoard [data-rb]').forEach(b=>{const k=b.dataset.rb,v=RO.bets[k];b.querySelector('.rc').textContent=v?shortAmt(v):'';
+    b.classList.toggle('hit',RO.hit!==null&&k==='n'+RO.hit);b.classList.toggle('won',RO.won.has(k)&&k!=='n'+RO.hit)});
+  if(RO.hit!==null){$('rRes').className='rnum '+rColor(RO.hit);$('rRes').textContent=RO.hit;$('roMsg').textContent=RO.msg}
+  else if(!RO.spin){$('rRes').className='rnum none';$('rRes').textContent='–';$('roMsg').textContent=roTotal()?'Add more chips or spin':'Place your chips, then spin'}
+  $('rHist').innerHTML=RO.hist.map(n=>`<span class="${rColor(n)}">${n}</span>`).join('');
+  const tot=roTotal();
+  $('roWallet').innerHTML=`On the table <b>${fmt(tot)}</b>`;
+  $('roClear').disabled=RO.spin||!tot;
+  const undo=RO.order.length>0;$('roUndo').textContent=undo||!RO.last?'Undo':'Rebet';
+  $('roUndo').disabled=RO.spin||(!undo&&!RO.last);
+  $('roSpin').disabled=RO.spin||!tot||tot>bank;
+}
+
+/* ---------- three card poker ---------- */
+const TC={phase:'bet',ante:25,pp:0,p:[],d:[],res:null,msg:'Bet the Ante, then deal'};
+const TC_SAY={deal:['Cards are out.','Three for you, three for me.','Let’s see what you’ve got.'],
+  win:['Nice hand. Paying you.','You got me.','Winner over here.'],lose:['Dealer takes it.','Sorry, I had you.','Not this time.'],
+  dq:['I don’t qualify. Ante pays, Play pushes.','Nothing here for me. You get paid on the Ante.'],push:['Dead even. Everything pushes.'],
+  fold:['Folded. Good discipline.','You’re out. Next one.'],big:['Look at that hand!','Now that’s a hand.']};
+$('tcPP').querySelectorAll('button').forEach(b=>b.onclick=()=>{TC.pp=+b.dataset.pp;sfx('chip');renderTC()});
+document.querySelectorAll('[data-tcc]').forEach(b=>b.onclick=()=>{if(TC.phase==='done'){TC.phase='bet';TC.ante=0}TC.ante=Math.min(bank,TC.ante+ +b.dataset.tcc);sfx('chip');renderTC()});
+$('tcClear').onclick=()=>{TC.ante=0;if(TC.phase==='done')TC.phase='bet';renderTC()};
+$('tcDeal').onclick=()=>{
+  const need=TC.ante*2+TC.pp;if(TC.ante<=0)return;if(need>bank){toast(`You need ${fmt(need)}: the Ante, the Play bet and Pair Plus`);return}
+  bank-=TC.ante+TC.pp;saveBank();addXP(TC.ante+TC.pp);
+  const deck=newDeck(1);TC.p=[deck.pop(),deck.pop(),deck.pop()];TC.d=[deck.pop(),deck.pop(),deck.pop()];TC.res=null;TC.bet={ante:TC.ante,pp:TC.pp};
+  TC.phase='decide';TC.msg='Play or fold?';moSay('tcSay','Dealer',pick(TC_SAY.deal));showTable('mo');renderTC();
+};
+function tcFinish(fold){
+  if(!fold){bank-=TC.bet.ante;saveBank();addXP(TC.bet.ante);sfx('chip')}
+  const r=settleThreeCard({...TC.bet,fold},TC.p,TC.d);TC.res=r;bank+=r.back;saveBank();
+  const staked=TC.bet.ante*(fold?1:2)+TC.bet.pp,net=r.back-staked;
+  const dn=TC_CAT[tcCat(r.ds)],pn=TC_CAT[tcCat(r.ps)];
+  TC.msg=(fold?'You folded. ':r.out==='dq'?`Dealer has ${dn.toLowerCase()} and doesn’t qualify. `:`Dealer has ${dn.toLowerCase()}, you have ${pn.toLowerCase()}. `)+(net>0?`You’re up ${fmt(net)}.`:net<0?`You lost ${fmt(-net)}.`:'Even money back.');
+  moSay('tcSay','Dealer',pick(r.pc>=3?TC_SAY.big:fold?TC_SAY.fold:TC_SAY[r.out]));
+  sfx(r.pc>=4&&net>0?'big':net>0?'win':net<0?'lose':'push',200);
+  if(r.pc>=3)ach('tcrun');
+  TC.phase='done';TC.ante=Math.min(TC.bet.ante,bank);moDone('tcHands',net,staked);renderTC();
+}
+$('tcPlayBtn').onclick=()=>{if(TC.phase==='decide')tcFinish(false)};
+$('tcFold').onclick=()=>{if(TC.phase==='decide')tcFinish(true)};
+function renderTC(){
+  dealIdx=0;const show=TC.phase==='done';
+  $('tcDHand').innerHTML=TC.d.length?TC.d.map(c=>cardHTML(c,!show)).join(''):cardHTML(null)+cardHTML(null)+cardHTML(null);
+  $('tcPHand').innerHTML=TC.p.length?TC.p.map(c=>cardHTML(c)).join(''):cardHTML(null)+cardHTML(null)+cardHTML(null);
+  const dn=$('tcDName'),pn=$('tcPName');
+  dn.hidden=!show;if(show)dn.textContent=TC_CAT[tcCat(eval3(TC.d))];
+  pn.hidden=!TC.p.length;if(TC.p.length)pn.textContent=TC_CAT[tcCat(eval3(TC.p))];
+  $('tcMsg').textContent=TC.msg;
+  const b=TC.phase==='bet'?{ante:TC.ante,pp:TC.pp}:TC.bet,res=TC.res;
+  const st=n=>{if(!res)return '';const l=res.L.filter(x=>x.n===n||(n==='Ante'&&x.n==='Ante bonus'));if(!l.length)return n==='Play'&&res.out==='fold'?'lose':'';const w=l.reduce((a,x)=>a+x.win,0);return w>0?'win':w<0?'lose':''};
+  const play=TC.phase==='done'&&res&&res.out!=='fold'?b.ante:0;
+  $('tcSpots').innerHTML=`<span class="tspot ${st('Ante')}">Ante <b>${fmt(b.ante)}</b></span><span class="tspot ${st('Play')}">Play <b>${play?fmt(play):'–'}</b></span><span class="tspot ${st('Pair Plus')}">Pair Plus <b>${b.pp?fmt(b.pp):'–'}</b></span>`;
+  const betting=TC.phase==='bet'||TC.phase==='done';
+  $('tcBet').hidden=!betting;$('tcPlay').hidden=TC.phase!=='decide';
+  $('tcAnte').textContent=fmt(TC.ante);
+  document.querySelectorAll('#tcPP button').forEach(x=>x.setAttribute('aria-pressed',+x.dataset.pp===TC.pp));
+  document.querySelectorAll('[data-tcc]').forEach(x=>x.disabled=TC.ante+ +x.dataset.tcc>bank);
+  $('tcDeal').disabled=TC.ante<=0;$('tcDeal').textContent=TC.phase==='done'?'Deal again':'Deal';
+  if(TC.phase==='decide'){$('tcPlayBtn').textContent=`Play ${fmt(TC.bet.ante)}`;$('tcPlayBtn').disabled=bank<TC.bet.ante}
+}
+
+/* ---------- baccarat ---------- */
+const BA={shoe:newDeck(8),bets:{},order:[],last:null,p:[],b:[],res:null,road:[],dealing:false,msg:'Bet Player, Banker or Tie'};
+const BA_SAY={deal:['Cards, please.','Player… and Banker.','Here’s the coup.'],natural:['A natural!','Natural. No more cards.'],
+  player:['Player wins.','Player takes it.'],banker:['Banker wins.','Banker it is.'],tie:['Tie hand. Player and Banker push.','A tie. Rare one.']};
+const baTotal=()=>Object.values(BA.bets).reduce((a,b)=>a+b,0);
+document.querySelectorAll('[data-bb]').forEach(b=>b.onclick=()=>{
+  if(BA.dealing)return;if(baTotal()+MO.chip>bank){toast('Not enough in your bank for that chip');return}
+  if(BA.res){BA.res=null}
+  const k=b.dataset.bb;BA.bets[k]=(BA.bets[k]||0)+MO.chip;BA.order.push([k,MO.chip]);sfx('chip');renderBA()});
+$('baClear').onclick=()=>{if(BA.dealing)return;BA.bets={};BA.order=[];renderBA()};
+$('baUndo').onclick=()=>{if(BA.dealing)return;
+  if(BA.order.length){const [k,v]=BA.order.pop();BA.bets[k]-=v;if(BA.bets[k]<=0)delete BA.bets[k]}
+  else if(BA.last){const t=Object.values(BA.last).reduce((a,b)=>a+b,0);if(t>bank){toast('Not enough in your bank to rebet');return}BA.bets={...BA.last};BA.order=Object.entries(BA.bets);BA.res=null;sfx('chip')}
+  renderBA()};
+$('baDeal').onclick=async()=>{
+  const tot=baTotal();if(BA.dealing||!tot)return;if(tot>bank){toast('Not enough in your bank');return}
+  if(BA.shoe.length<30){BA.shoe=newDeck(8);toast('Fresh shoe shuffled')}
+  BA.dealing=true;BA.last={...BA.bets};bank-=tot;saveBank();addXP(tot);BA.res=null;
+  const r=bacPlay(()=>BA.shoe.pop());BA.p=[];BA.b=[];BA.msg='Dealing…';moSay('baSay','Croupier',pick(BA_SAY.deal));showTable('mo');renderMO();
+  const seq=[['p',r.p[0]],['b',r.b[0]],['p',r.p[1]],['b',r.b[1]]];if(r.p[2])seq.push(['p',r.p[2]]);if(r.b[2])seq.push(['b',r.b[2]]);
+  for(let k=0;k<seq.length;k++){await sleep(k>=4?750:420);const [w,c]=seq[k];(w==='p'?BA.p:BA.b).push(c);if(k===3&&r.natural)moSay('baSay','Croupier',pick(BA_SAY.natural));renderBA()}
+  await sleep(450);
+  const s=settleBaccarat(BA.bets,r.win);bank+=s.back;saveBank();BA.res=r;
+  const net=s.back-tot;
+  BA.road.unshift(r.win[0].toUpperCase());BA.road=BA.road.slice(0,36);
+  BA.msg=(r.win==='tie'?`Tie, ${r.pt} to ${r.bt}. `:`${r.win==='player'?'Player':'Banker'} wins, ${Math.max(r.pt,r.bt)} to ${Math.min(r.pt,r.bt)}. `)+(net>0?`You won ${fmt(net)}.`:net<0?`You lost ${fmt(-net)}.`:'Even money back.');
+  moSay('baSay','Croupier',(r.natural?pick(BA_SAY.natural)+' ':'')+pick(BA_SAY[r.win]));
+  sfx(r.win==='tie'&&BA.bets.tie?'big':net>0?'win':net<0?'lose':'push');
+  if(r.natural&&r.win!=='tie'&&Math.max(r.pt,r.bt)===9&&BA.bets[r.win])ach('natural9');
+  BA.won=s.L.filter(l=>l.win>0).map(l=>l.k);BA.lost=s.L.filter(l=>l.win<0).map(l=>l.k);
+  BA.bets={};BA.order=[];BA.dealing=false;moDone('baHands',net,tot);renderMO();
+};
+function renderBA(){
+  dealIdx=0;moChips('baChips');
+  $('baPHand').innerHTML=BA.p.length?BA.p.map(c=>cardHTML(c)).join(''):cardHTML(null)+cardHTML(null);
+  $('baBHand').innerHTML=BA.b.length?BA.b.map(c=>cardHTML(c)).join(''):cardHTML(null)+cardHTML(null);
+  $('baPT').hidden=!BA.p.length;$('baPT').textContent=bacTotal(BA.p);$('baBT').hidden=!BA.b.length;$('baBT').textContent=bacTotal(BA.b);
+  $('baPZone').classList.toggle('won',!!BA.res&&BA.res.win==='player');$('baBZone').classList.toggle('won',!!BA.res&&BA.res.win==='banker');
+  $('baMsg').textContent=BA.res||BA.dealing?BA.msg:baTotal()?'Add more chips or deal':'Bet Player, Banker or Tie';
+  document.querySelectorAll('[data-bb]').forEach(b=>{const k=b.dataset.bb,v=BA.bets[k]||(BA.res&&BA.last&&BA.last[k])||0;
+    b.querySelector('.rc').textContent=v?shortAmt(v):'';
+    b.classList.toggle('won',!!BA.res&&(BA.won||[]).includes(k));b.classList.toggle('lost',!!BA.res&&(BA.lost||[]).includes(k))});
+  $('baRoad').innerHTML=BA.road.slice().reverse().map(x=>`<i class="${x}">${x}</i>`).join('');
+  const tot=baTotal();$('baWallet').innerHTML=`On the table <b>${fmt(tot)}</b>`;
+  $('baClear').disabled=BA.dealing||!tot;
+  const undo=BA.order.length>0;$('baUndo').textContent=undo||!BA.last?'Undo':'Rebet';$('baUndo').disabled=BA.dealing||(!undo&&!BA.last);
+  $('baDeal').disabled=BA.dealing||!tot||tot>bank;
+}
+
+/* ---------- video poker ---------- */
+const VP={phase:'bet',bet:25,hand:[],hold:[0,0,0,0,0],deck:[],res:null,msg:'Bet, then deal five cards'};
+document.querySelectorAll('[data-vpc]').forEach(b=>b.onclick=()=>{if(VP.phase==='hold')return;if(VP.phase==='done'){VP.phase='bet';VP.bet=0}VP.bet=Math.min(bank,VP.bet+ +b.dataset.vpc);sfx('chip');renderVP()});
+$('vpClear').onclick=()=>{VP.bet=0;if(VP.phase==='done')VP.phase='bet';renderVP()};
+$('vpDeal').onclick=()=>{
+  if(VP.bet<=0||VP.bet>bank)return;bank-=VP.bet;saveBank();addXP(VP.bet);
+  VP.deck=newDeck(1);VP.hand=[0,1,2,3,4].map(()=>VP.deck.pop());VP.hold=[0,0,0,0,0];VP.res=null;VP.stake=VP.bet;VP.phase='hold';
+  const h=vpHand(VP.hand);VP.msg=h.mult?`You’re holding ${h.n.toLowerCase()}. Keep it and draw.`:'Tap cards to hold, then draw';showTable('mo');renderVP();
+};
+$('vpHand').addEventListener('click',e=>{const b=e.target.closest('[data-vi]');if(!b||VP.phase!=='hold')return;const i=+b.dataset.vi;VP.hold[i]=VP.hold[i]?0:1;sfx('card');renderVP()});
+$('vpDrawBtn').onclick=()=>{
+  if(VP.phase!=='hold')return;
+  VP.hand=VP.hand.map((c,i)=>VP.hold[i]?c:VP.deck.pop());
+  const h=vpHand(VP.hand);VP.res=h;const back=VP.stake*h.mult;bank+=back;saveBank();const net=back-VP.stake;
+  VP.msg=h.mult?`${h.n}! Pays ${fmt(back)}${net>0?`, up ${fmt(net)}`:', your bet back'}.`:`No win. You lost ${fmt(VP.stake)}.`;
+  sfx(h.i>=0&&h.i<=2?'big':net>0?'win':net<0?'lose':'push',300);
+  if(h.i>=0&&h.i<=2)ach('quads');if(h.i===0)brag('hit a royal flush in video poker');
+  VP.phase='done';VP.bet=Math.min(VP.stake,bank);moDone('vpHands',net,VP.stake);renderVP();
+};
+function renderVP(){
+  dealIdx=0;const bet=VP.phase==='bet'?VP.bet:VP.stake||VP.bet;
+  $('vpPay').innerHTML=VP_PAY.map(([n,m],i)=>`<tr class="${VP.res&&VP.res.i===i?'hit':''}"><td>${n}</td><td>${bet?fmt(bet*m):m+' for 1'}</td></tr>`).join('');
+  $('vpHand').innerHTML=(VP.hand.length?VP.hand:[null,null,null,null,null]).map((c,i)=>`<button class="vpc${VP.phase==='hold'&&VP.hold[i]?' on':''}" data-vi="${i}" ${VP.phase==='hold'?'':'disabled'} aria-pressed="${!!VP.hold[i]}">${cardHTML(c)}<span class="held">Held</span></button>`).join('');
+  $('vpMsg').textContent=VP.msg;
+  $('vpBet').hidden=VP.phase==='hold';$('vpDraw').hidden=VP.phase!=='hold';
+  $('vpBetAmt').textContent=fmt(VP.bet);
+  document.querySelectorAll('[data-vpc]').forEach(x=>x.disabled=VP.bet+ +x.dataset.vpc>bank);
+  $('vpDeal').disabled=VP.bet<=0||VP.bet>bank;$('vpDeal').textContent=VP.phase==='done'?'Deal again':'Deal';
+}
+
 /* =================== LOUNGE =================== */
 function bankChartSVG(){
   const H=PROF.hist;if(H.length<2)return '<p class="sub">Play a few hands and your bank history shows up here.</p>';
@@ -2044,7 +2521,7 @@ function renderLounge(){
   const cb=$('claimBtn');if(cb)cb.onclick=claimDaily;
   renderGames();renderSocial();
   const R=PROF.rec,C=PROF.cnt;
-  $('recs').innerHTML=[['Highest bank',R.bankHigh||bank],['Best blackjack round',R.bjWin||0],['Blackjack win streak',R.bjStreak||0],['Biggest Hold’em pot',R.hePot||0],['Best craps roll',R.crWin||0],['Hands played',(C.bjHands||0)+(C.heHands||0)]].map(([k,v])=>`<div class="rec"><span>${k}</span><b>${fmt(v)}</b></div>`).join('');
+  $('recs').innerHTML=[['Highest bank',R.bankHigh||bank],['Best blackjack round',R.bjWin||0],['Blackjack win streak',R.bjStreak||0],['Biggest Hold’em pot',R.hePot||0],['Best craps roll',R.crWin||0],['Best round, more games',R.moWin||0],['Hands played',(C.bjHands||0)+(C.heHands||0)+(C.tcHands||0)+(C.baHands||0)+(C.vpHands||0)]].map(([k,v])=>`<div class="rec"><span>${k}</span><b>${fmt(v)}</b></div>`).join('');
   $('bankChart').innerHTML=isPro()?bankChartSVG():'<div class="proteaser"><span class="protag">Pro</span>See your bank over time, with every high and low.<button class="btn ghost preset" data-pro>See Pro</button></div>';if(isPro())wireChart();
   const got=ACH.filter(a=>PROF.ach[a.k]).length;$('achCount').textContent=`· ${got} of ${ACH.length}`;
   $('achs').innerHTML=ACH.map(a=>`<div class="ach ${PROF.ach[a.k]?'got':''}"><span class="gm">${a.g}</span><b>${a.n}</b><span>${a.d}</span></div>`).join('');

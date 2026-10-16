@@ -2,7 +2,7 @@
 
 [![Tests](https://github.com/Cody-Ayers/deuce-card-room/actions/workflows/test.yml/badge.svg)](https://github.com/Cody-Ayers/deuce-card-room/actions/workflows/test.yml)
 
-Blackjack, Texas Hold'em and Craps in one installable web app, dressed in burgundy and steel blue.
+Blackjack, Texas Hold'em, Craps, Roulette, Three Card Poker, Baccarat and Video Poker in one installable web app, dressed in burgundy and steel blue.
 
 **▶ Play:** https://cody-ayers.github.io/deuce-card-room/
 
@@ -16,13 +16,14 @@ Blackjack, Texas Hold'em and Craps in one installable web app, dressed in burgun
 - **Blackjack:** 6-deck shoe, splits and doubles, a Perfect Pairs side bet, and a **basic-strategy coach** that grades every decision and keeps a running accuracy score
 - **Texas Hold'em:** three regulars (Rosa, Dutch and Mei) with their own playing styles. They estimate their odds by simulating the rest of the hand, talk at the table, and remember you between visits. There's also a bad beat jackpot.
 - **Craps:** the full casino layout on one screen, including every line, place, odds, hardway and proposition bet. Learn mode has an 11-step lesson and explains every roll bet by bet.
-- **Lounge:** VIP levels with unlockable felts, card backs and higher stakes, daily chips with streaks, 20 achievements, personal records with a bank chart, a prize wheel, scratch cards and a daily Hold'em puzzle
+- **More games:** single-zero Roulette with a spinning wheel and full betting board, Three Card Poker with Pair Plus, Baccarat with a results road, and Jacks or Better Video Poker
+- **Lounge:** VIP levels with unlockable felts, card backs and higher stakes, daily chips with streaks, 25 achievements, personal records with a bank chart, a prize wheel, scratch cards and a daily Hold'em puzzle
 
 ## Under the hood
 - **No framework, no build step.** It's one `index.html` with hand-written CSS and JavaScript. Sound effects are synthesized with the Web Audio API.
 - **Installable PWA:** a manifest and service worker let it go on your home screen and play offline.
-- **A separate game engine:** the rules and math live in a `<script id="engine">` block with no access to the page: blackjack totals and basic strategy, a 7-card poker evaluator and equity estimator, and craps settlement for every bet.
-- **Tested:** 46 tests load that engine straight out of `index.html`, so they check the exact code the app runs. They run on every push with GitHub Actions.
+- **A separate game engine:** the rules and math live in a `<script id="engine">` block with no access to the page: blackjack totals and basic strategy, a 7-card poker evaluator and equity estimator, craps settlement for every bet, and the rules and payouts for roulette, three card poker, baccarat and video poker.
+- **Tested:** 60 tests load that engine straight out of `index.html`, so they check the exact code the app runs. They run on every push with GitHub Actions.
 
 ```bash
 npm test   # Node 22+, no dependencies
@@ -51,5 +52,5 @@ Signed out, progress is saved on each device.
 | `privacy.html` | Privacy policy |
 | `capacitor.config.json`, `scripts/build-www.mjs` | Native app config and the build that bundles fonts and libraries into `www/` |
 | `assets/`, `fonts/` | App icon and launch screen sources, bundled fonts (SIL OFL) |
-| `tests/` | Engine tests (blackjack, poker, craps) |
+| `tests/` | Engine tests (blackjack, poker, craps and the table games) |
 | `icons/` | App icon in every size, plus the source SVG |
