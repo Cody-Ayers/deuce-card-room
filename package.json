@@ -11,7 +11,16 @@
     "ios:icons": "npx @capacitor/assets generate --ios --iconBackgroundColor '#2a0a17' --splashBackgroundColor '#2a0a17'"
   },
   "dependencies": {
+    "@capacitor/core": "^8.5.3",
+    "@capacitor/ios": "^8.5.3",
+    "@capacitor/status-bar": "^8.0.4",
     "@supabase/supabase-js": "^2.110.1"
   },
-  "engines": { "node": ">=22" }
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^8.5.3"
+  }
 }
