@@ -861,7 +861,7 @@ function sfx(kind,delayMs=0){
   if(!soundOn)return;const ctx=ac();if(!ctx||ctx.state!=='running')return;
   const t=ctx.currentTime+delayMs/1000;
   if(kind==='card'){noise(ctx,t,.07,2600,.9,.5)}
-  else if(kind==='chip'){tone(ctx,t,2900,.06,'triangle',.18);tone(ctx,t+.045,3400,.07,'triangle',.14);noise(ctx,t,.03,5000,2,.25)}
+  else if(kind==='chip'){noise(ctx,t,.024,2100,1.4,.55);noise(ctx,t+.038,.02,2500,1.6,.32);tone(ctx,t,190,.05,'sine',.09,110)}
   else if(kind==='dice'){for(let k=0;k<7;k++){const dt=k*.06+Math.random()*.03;noise(ctx,t+dt,.035,1400+Math.random()*1400,3,.55-k*.05)}}
   else if(kind==='win'){[523,659,784].forEach((f,k)=>tone(ctx,t+k*.09,f,.22,'triangle',.16))}
   else if(kind==='lose'){tone(ctx,t,330,.35,'sine',.13,196)}
