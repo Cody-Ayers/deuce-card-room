@@ -489,7 +489,13 @@ body[data-felt="rink"] .table .real .propbox{background:rgba(19,35,58,.08)}
 .lstrip .muted,.cstrip .muted{color:#5d5848}
 .vpc.sug .card{box-shadow:0 0 0 3px var(--accent),0 0 0 6px rgba(217,171,79,.25)}
 
-.flychip{position:fixed;left:0;top:0;z-index:999;width:26px;height:26px;border-radius:50%;border:2px dashed #fff;box-sizing:border-box;pointer-events:none;box-shadow:0 4px 8px rgba(0,0,0,.45)}
+.flychip{position:fixed;left:0;top:0;z-index:999;width:28px;height:28px;border-radius:50%;border:2px dashed #fff;box-sizing:border-box;pointer-events:none;box-shadow:0 4px 8px rgba(0,0,0,.45);font:600 10px/24px var(--f-num);text-align:center;color:#fff}
+.k5{background:#a3283f!important;color:#fff!important}.k25{background:#2a6aa8!important;color:#fff!important}.k100{background:#16191c!important;color:#fff!important}.k500{background:#c9ced1!important;color:#16191c!important}.k1000{background:linear-gradient(135deg,#f1d68c,#b88a2e)!important;color:#1a1408!important}
+.pop{animation:chipPop .22s cubic-bezier(.3,1.6,.5,1) .2s both}
+@keyframes chipPop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.rc.rpos.pop{animation:chipPopC .22s cubic-bezier(.3,1.6,.5,1) .2s both}
+@keyframes chipPopC{from{transform:translate(-50%,-50%) scale(0);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){.pop,.rc.rpos.pop{animation:none}}
 .rtiprow{display:flex;align-items:flex-start;gap:8px}
 .spinamt{font:600 13px var(--f-num);opacity:.75;margin-left:4px}
 #roSay{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:1.3em}
@@ -1360,13 +1366,15 @@ function buzz(kind){
 }
 function setHap(on){hapOn=on;try{localStorage.setItem('dcr_hap',on?'on':'off')}catch(e){}if(on)buzz('chip')}
 /* chips slide from the rack to where the bet lands */
-function flyChip(from,to,val){
+const chipCls=v=>'k'+(v>=1000?1000:v>=500?500:v>=100?100:v>=25?25:5);
+function flyChip(from,to,val,corner){
   if(!from||!to||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
   const a=from.getBoundingClientRect(),b=to.getBoundingClientRect();if(!a.width||!b.width)return;
-  const c=document.createElement('div');c.className='flychip c'+(val>=1000?1000:val);document.body.appendChild(c);
-  const x0=a.left+a.width/2-13,y0=a.top+a.height/2-13,x1=b.left+b.width/2-13,y1=b.top+b.height/2-13;
-  const anim=c.animate([{transform:`translate(${x0}px,${y0}px) scale(1.25)`,opacity:1},{transform:`translate(${(x0+x1)/2}px,${Math.min(y0,y1)-40}px) scale(1.05)`,opacity:1,offset:.55},{transform:`translate(${x1}px,${y1}px) scale(.9)`,opacity:.9}],{duration:300,easing:'cubic-bezier(.3,.7,.4,1)'});
-  anim.onfinish=()=>c.remove();setTimeout(()=>c.remove(),600);
+  const c=document.createElement('div');c.className='flychip '+chipCls(val);c.textContent=val>=1000?Math.round(val/1000)+'K':val;document.body.appendChild(c);
+  const x0=a.left+a.width/2-14,y0=a.top+a.height/2-14;
+  const x1=corner?b.right-14:b.left+b.width/2-14,y1=corner?b.top-14+6:b.top+b.height/2-14;
+  const anim=c.animate([{transform:`translate(${x0}px,${y0}px) scale(1)`},{transform:`translate(${x1}px,${y1}px) scale(.92)`}],{duration:230,easing:'cubic-bezier(.2,.8,.3,1)'});
+  anim.onfinish=()=>c.remove();setTimeout(()=>c.remove(),500);
 }
 const pickedChip=()=>document.querySelector('.pickchips:not([hidden]) .chip[aria-pressed="true"]');
 function setSound(on){soundOn=on;if(!on&&typeof stopAmb==='function')stopAmb();else if(on&&typeof startAmb==='function')setTimeout(startAmb,60);$('sndBtn').setAttribute('aria-pressed',on);$('sndBtn').setAttribute('aria-label',on?'Sound on':'Sound off');try{localStorage.setItem('dcr_sound',on?'on':'off')}catch(e){}if(on){ac();sfx('chip')}}
@@ -2141,7 +2149,7 @@ async function rollDice(){
   if(CR.mode==='learn'&&practice.v<5&&!Object.keys(s.bets).length&&!Object.keys(s.come).length){practice.v=1000;s.msg+=' · Practice chips refilled to 1,000'}
   s.rolling=false;renderCR();
 }
-['crReal','crLayout','crProps'].forEach(id=>$(id).addEventListener('click',e=>{const z=e.target.closest('[data-bet]');if(!z)return;const s=crS(),w0=s.w.get();placeBet(z.dataset.bet);if(s.w.get()<w0)flyChip($('crChips').querySelector('[aria-pressed="true"]'),z,CR.chip)}));
+['crReal','crLayout','crProps'].forEach(id=>$(id).addEventListener('click',e=>{const z=e.target.closest('[data-bet]');if(!z)return;const s=crS(),w0=s.w.get();CR.pop=z.dataset.bet;placeBet(z.dataset.bet);if(s.w.get()<w0)flyChip($('crChips').querySelector('[aria-pressed="true"]'),z,CR.chip,id==='crLayout');setTimeout(()=>{CR.pop=null},400)}));
 CR.view='main';
 document.querySelectorAll('#crView button').forEach(b=>b.onclick=()=>{CR.view=b.dataset.v;renderCR()});
 $('crRoll').onclick=rollDice;$('crClear').onclick=clearBets;
@@ -2178,8 +2186,8 @@ function renderCR(){
   document.querySelectorAll('#cr [data-bet]').forEach(z=>{
     const k=z.dataset.bet,n=+k.replace('place','');
     let h='';
-    if(B[k]&&!z.classList.contains('pline'))h+=`<span class="bchip">${fmt(B[k])}</span>`;
-    if(k.startsWith('place')){if(s.come[n])h+=`<span class="cchip">C${fmt(s.come[n])}${s.co[n]?'+'+fmt(s.co[n]):''}</span>`;if(s.dc[n])h+=`<span class="dchip">DC${fmt(s.dc[n])}</span>`;if(s.point===n)h+='<span class="puck on">ON</span>'}
+    if(B[k]&&!z.classList.contains('pline'))h+=`<span class="bchip ${chipCls(B[k])}${CR.pop===k?' pop':''}">${fmt(B[k])}</span>`;
+    if(k.startsWith('place')){if(s.come[n])h+=`<span class="cchip ${chipCls(s.come[n])}">C${fmt(s.come[n])}${s.co[n]?'+'+fmt(s.co[n]):''}</span>`;if(s.dc[n])h+=`<span class="dchip">DC${fmt(s.dc[n])}</span>`;if(s.point===n)h+='<span class="puck on">ON</span>'}
     if(k==='comeodds'){const tot=Object.values(s.co).reduce((x,v)=>x+v,0);if(tot)h+=`<span class="bchip">${fmt(tot)}</span>`}
     if(s.floats&&!s.rolling){const f=s.floats[k];if(f)h+=`<span class="wfloat ${f>0?'up':'dn'}">${f>0?'+':'−'}${fmt(Math.abs(f))}</span>`}
     z.querySelector('.slot').innerHTML=h;
@@ -2630,7 +2638,7 @@ buildRO();
 $('roHelpBtn').onclick=()=>{RO.help=!RO.help;renderRO()};
 function roPlace(k,el){
   if(roTotal()+MO.chip>bank){toast('Not enough in your bank for that chip');return}
-  if(el)flyChip(pickedChip(),el,MO.chip);
+  if(el)flyChip(pickedChip(),el,MO.chip);RO.pop=k;setTimeout(()=>{RO.pop=null},400);
   if(RO.hit!==null){RO.hit=null;RO.won.clear();RO.log=[]}
   RO.bets[k]=(RO.bets[k]||0)+MO.chip;RO.order.push([k,MO.chip]);RO.cover=roNums(k);RO.tip=LEARN.ro?roExplain(k):'';RO.banner=null;sfx('chip');renderRO();
 }
@@ -2724,7 +2732,7 @@ function renderRO(){
   const ch=$('rChips');
   if(!$('mgRO').hidden&&!$('mo').hidden){const box=$('rBoard').getBoundingClientRect();const zk=Math.round(box.width)+'x'+Math.round(box.height);if(RO.zw!==zk||!$('rHits').firstChild){roZones();RO.zw=zk}
     ch.innerHTML=Object.entries(shown).map(([k,v])=>{const [x,y]=roChipXY(k,box);const st=RO.hit===null?'':RO.won.has(k)?' won':' lost';
-      return `<span class="rc rpos${st}" style="left:${x.toFixed(1)}px;top:${y.toFixed(1)}px">${shortAmt(v)}</span>`}).join('')}
+      return `<span class="rc rpos${st} ${chipCls(v)}${RO.pop===k?' pop':''}" style="left:${x.toFixed(1)}px;top:${y.toFixed(1)}px">${shortAmt(v)}</span>`}).join('')}
   if(RO.hit!==null){$('rRes').className='rnum '+rColor(RO.hit);$('rRes').textContent=RO.hit;$('roMsg').textContent=RO.msg}
   else if(RO.spin){$('rRes').className='rnum none';$('rRes').textContent='…';$('roMsg').textContent='Spinning…'}
   else{$('rRes').className='rnum none';$('rRes').textContent='–';$('roMsg').textContent=roTotal()?'Add more or spin':'Place your chips'}
@@ -2801,7 +2809,7 @@ const BA_SAY={deal:['Cards, please.','Player… and Banker.','Here’s the coup.
 const baTotal=()=>Object.values(BA.bets).reduce((a,b)=>a+b,0);
 document.querySelectorAll('[data-bb]').forEach(b=>b.onclick=()=>{
   if(BA.dealing)return;if(baTotal()+MO.chip>bank){toast('Not enough in your bank for that chip');return}
-  flyChip(pickedChip(),b,MO.chip);
+  flyChip(pickedChip(),b,MO.chip,true);BA.pop=b.dataset.bb;setTimeout(()=>{BA.pop=null},400);
   if(BA.res){BA.res=null}
   const k=b.dataset.bb;BA.bets[k]=(BA.bets[k]||0)+MO.chip;BA.order.push([k,MO.chip]);sfx('chip');renderBA()});
 $('baClear').onclick=()=>{if(BA.dealing)return;BA.bets={};BA.order=[];renderBA()};
@@ -2843,7 +2851,7 @@ function renderBA(){
   $('baPZone').classList.toggle('won',!!BA.res&&BA.res.win==='player');$('baBZone').classList.toggle('won',!!BA.res&&BA.res.win==='banker');
   $('baMsg').textContent=BA.res||BA.dealing?BA.msg:baTotal()?'Add more chips or deal':'Bet Player, Banker or Tie';
   document.querySelectorAll('[data-bb]').forEach(b=>{const k=b.dataset.bb,v=BA.bets[k]||(BA.res&&BA.last&&BA.last[k])||0;
-    b.querySelector('.rc').textContent=v?shortAmt(v):'';
+    {const rc=b.querySelector('.rc');rc.textContent=v?shortAmt(v):'';rc.className='rc'+(v?' '+chipCls(v):'')+(BA.pop===k?' pop':'')}
     b.classList.toggle('won',!!BA.res&&(BA.won||[]).includes(k));b.classList.toggle('lost',!!BA.res&&(BA.lost||[]).includes(k))});
   {const L=$('baLearn');L.hidden=!LEARN.ba||BA.dealing;if(LEARN.ba&&!BA.dealing)L.innerHTML=BA.res?baExplain(BA.res):'<b>Pick Player, Banker or Tie.</b> The hand closest to 9 wins. Aces count 1, tens and faces 0, and totals drop the tens digit (15 counts as 5).'}
   $('baRoad').innerHTML=BA.road.slice().reverse().map(x=>`<i class="${x}">${x}</i>`).join('');
