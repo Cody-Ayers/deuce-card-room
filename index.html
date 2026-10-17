@@ -469,6 +469,14 @@ body[data-felt="rink"] .table .real .propbox{background:rgba(19,35,58,.08)}
 /* more games */
 .mseg{flex-wrap:wrap;justify-content:center;border-radius:18px}
 #mo>.subbar{margin-bottom:6px}
+/* lounge tabs */
+.lotabs{position:sticky;top:0;z-index:30;display:flex;justify-content:center;padding:6px 0 8px;margin:-6px 0 -4px;background:linear-gradient(var(--rail) 75%,rgba(14,19,17,0))}
+#loSeg{border-radius:16px;background:var(--rail-2)}
+#loSeg button{padding:7px 11px;font-size:13px;position:relative}
+#loSeg button.hasdot::after{content:"";position:absolute;top:3px;right:4px;width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.panel.lohide{display:none}
+@media (max-width:380px){#loSeg button{padding:6px 8px;font-size:12px}}
+
 .lrn{display:flex;align-items:center;gap:5px;height:34px;padding:0 11px 0 9px;border-radius:999px;border:1px solid rgba(243,239,228,.22);background:transparent;color:var(--muted);font:800 11px var(--f-body);letter-spacing:.06em;text-transform:uppercase;cursor:pointer;flex:none}
 .lrn svg{width:17px;height:17px}
 .lrn.pulse{animation:lrnPulse 1.8s ease-in-out infinite;border-color:var(--accent);color:var(--accent)}
@@ -922,27 +930,28 @@ h1{text-shadow:none;letter-spacing:0}
   </section>
   <!-- LOUNGE -->
   <section id="lo" hidden>
-    <div class="panel"><h2>Daily chips</h2><div class="daily" id="dailyBox"></div></div>
-    <div class="panel"><h2>Quick games</h2>
+    <div class="lotabs"><div class="seg" id="loSeg"><button data-lt="rewards" aria-pressed="true">Rewards</button><button data-lt="progress" aria-pressed="false">Progress</button><button data-lt="friends" aria-pressed="false">Friends</button><button data-lt="style" aria-pressed="false">Style</button><button data-lt="settings" aria-pressed="false">Settings</button></div></div>
+    <div class="panel" data-lt="rewards"><h2>Daily chips</h2><div class="daily" id="dailyBox"></div></div>
+    <div class="panel" data-lt="rewards"><h2>Quick games</h2>
       <div class="gtabs"><div class="seg" id="gameSeg"><button data-g="wheel" aria-pressed="true">Daily wheel</button><button data-g="scratch" aria-pressed="false">Scratch</button><button data-g="puzzle" aria-pressed="false">Puzzle</button></div></div>
       <div class="game" id="gWheel"><div class="wheelwrap"><canvas id="wheel" width="560" height="560" aria-label="Prize wheel"></canvas></div><button class="btn primary" id="spinBtn">Spin</button><p class="sub" id="wheelNote"></p></div>
       <div class="game" id="gScratch" hidden></div>
       <div class="game" id="gPuzzle" hidden></div>
     </div>
-    <div class="panel" id="vipPanel"></div>
-    <div class="panel" id="proPanel" hidden></div>
-    <div class="panel"><h2>Friends</h2><div id="social" class="sub">Connecting…</div></div>
-    <div class="panel"><h2>Your records</h2><div class="recs" id="recs"></div><div class="chartbox" id="bankChart"></div></div>
-    <div class="panel"><h2>Achievements <span class="xp" id="achCount"></span></h2><p class="sub">Each one pays 100 chips to your bank.</p><div class="achs" id="achs"></div></div>
-    <div class="panel"><h2>Table settings</h2>
+    <div class="panel" id="vipPanel" data-lt="progress"></div>
+    <div class="panel" id="proPanel" data-lt="progress" hidden></div>
+    <div class="panel" data-lt="friends"><h2>Friends</h2><div id="social" class="sub">Connecting…</div></div>
+    <div class="panel" data-lt="progress"><h2>Your records</h2><div class="recs" id="recs"></div><div class="chartbox" id="bankChart"></div></div>
+    <div class="panel" data-lt="progress"><h2>Achievements <span class="xp" id="achCount"></span></h2><p class="sub">Each one pays 100 chips to your bank.</p><div class="achs" id="achs"></div></div>
+    <div class="panel" data-lt="settings"><h2>Table settings</h2>
       <div class="subbar" style="justify-content:flex-start">Card style <div class="seg" id="deckSeg"><button data-deck="deco" aria-pressed="true">Deco</button><button data-deck="classic" aria-pressed="false">Classic</button><button data-deck="four" aria-pressed="false">Four-color</button></div></div>
       <div class="subbar" id="coachRow" style="justify-content:flex-start">Blackjack coach <span class="sub" style="text-transform:none;letter-spacing:0">turn on with the Learn button at the table</span><div class="seg" id="coachSeg" hidden></div><button class="btn ghost preset" id="bjAccReset">Reset coach score</button></div>
     </div>
-    <div class="panel"><h2>Table surface</h2><p class="sub">Classic felts, or play on a rink, field, court, green or diamond.</p><div class="picks" id="feltPicks"></div></div>
-    <div class="panel"><h2>Card back</h2><div class="picks" id="backPicks"></div></div>
-    <div class="panel"><h2>Hold’em table</h2><p class="sub">Higher stakes, bigger pots. The regulars buy in for 50 big blinds.</p><div class="picks" id="stakePicks"></div></div>
-    <div class="panel"><h2>The regulars</h2><div id="regulars" class="sub"></div></div>
-    <div class="panel"><h2>Room</h2><div class="subbar" id="hapRow" style="justify-content:flex-start">Haptics <div class="seg" id="hapSeg"><button data-hap="on" aria-pressed="true">On</button><button data-hap="off" aria-pressed="false">Off</button></div></div><div class="subbar" style="justify-content:flex-start">Background murmur <div class="seg" id="ambSeg"><button data-amb="on" aria-pressed="false">On</button><button data-amb="off" aria-pressed="true">Off</button></div></div><p class="sub">A quiet casino crowd under the game sounds, with no extra chip noises. After 10 pm the room dims a little.</p></div>
+    <div class="panel" data-lt="style"><h2>Table surface</h2><p class="sub">Classic felts, or play on a rink, field, court, green or diamond.</p><div class="picks" id="feltPicks"></div></div>
+    <div class="panel" data-lt="style"><h2>Card back</h2><div class="picks" id="backPicks"></div></div>
+    <div class="panel" data-lt="style"><h2>Hold’em table</h2><p class="sub">Higher stakes, bigger pots. The regulars buy in for 50 big blinds.</p><div class="picks" id="stakePicks"></div></div>
+    <div class="panel" data-lt="friends"><h2>The regulars</h2><div id="regulars" class="sub"></div></div>
+    <div class="panel" data-lt="settings"><h2>Room</h2><div class="subbar" id="hapRow" style="justify-content:flex-start">Haptics <div class="seg" id="hapSeg"><button data-hap="on" aria-pressed="true">On</button><button data-hap="off" aria-pressed="false">Off</button></div></div><div class="subbar" style="justify-content:flex-start">Background murmur <div class="seg" id="ambSeg"><button data-amb="on" aria-pressed="false">On</button><button data-amb="off" aria-pressed="true">Off</button></div></div><p class="sub">A quiet casino crowd under the game sounds, with no extra chip noises. After 10 pm the room dims a little.</p></div>
   </section>
   <div class="row" id="refillRow" hidden><button class="btn primary" id="refill">Refill bank to 1,000</button></div>
 </div>
@@ -1402,7 +1411,7 @@ function applyLooks(){
 function setPro(src){src=src||null;if(src===PRO.src)return;PRO.src=src;try{src?localStorage.setItem('deuce-pro',JSON.stringify({src})):localStorage.removeItem('deuce-pro')}catch(e){}
   applyLooks();if(typeof renderBJ==='function'&&tab==='bj')renderBJ();if(typeof renderLounge==='function'&&tab==='lo')renderLounge()}
 window.addEventListener('dcr-pro',e=>setPro(e.detail&&e.detail.src));
-function showPro(){const p=$('proPanel');if(!p||p.hidden){toast('That’s part of Deuce Pro');return}if(tab!=='lo')setTab('lo');requestAnimationFrame(()=>{p.scrollIntoView({behavior:'smooth',block:'center'});p.classList.remove('pulse');void p.offsetWidth;p.classList.add('pulse')})}
+function showPro(){const p=$('proPanel');if(!p||p.hidden){toast('That’s part of Deuce Pro');return}if(tab!=='lo')setTab('lo');if(typeof setLoTab==='function'&&LO.tab!=='progress')setLoTab('progress');requestAnimationFrame(()=>{p.scrollIntoView({behavior:'smooth',block:'center'});p.classList.remove('pulse');void p.offsetWidth;p.classList.add('pulse')})}
 function addXP(n){
   if(!(n>0))return;const before=lvlIdx();PROF.xp+=Math.round(n);saveProf();const after=lvlIdx();
   if(after>before){applyLooks();levelUp(after,isPro())}
@@ -1414,7 +1423,7 @@ function levelUp(L,pro){brag(`reached ${LEVELS[L].n} VIP`);
   toast(msg,true);
 }
 function flash(){if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;const f=document.createElement('div');f.className='flash';document.body.appendChild(f);setTimeout(()=>f.remove(),950)}
-$('vipPill').onclick=()=>setTab('lo');
+$('vipPill').onclick=()=>{if(typeof LO!=='undefined'){LO.tab='progress';try{localStorage.setItem('dcr_lotab','progress')}catch(e){}}if(tab==='lo')renderLoTabs();else setTab('lo')};
 
 /* ---------- daily, records, achievements ---------- */
 PROF.daily=PROF.daily||{last:null,streak:0};PROF.rec=PROF.rec||{};PROF.ach=PROF.ach||{};PROF.hist=PROF.hist||[];PROF.cnt=PROF.cnt||{};
@@ -2317,7 +2326,7 @@ const esc=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 async function renderSocial(){
   const el=$('social');if(!el)return;
   if(!SOC.ready){el.textContent='Connecting…';return}
-  if(!SOC.db){el.innerHTML=window.DCR_CLOUD?'Sign in at the top of the Lounge to see the leaderboard and brag wall, and to post your own big moments.':'Leaderboards and the brag wall need you signed in to Claude. Friends you share this app with (from the Share menu) show up here.';return}
+  if(!SOC.db){el.innerHTML=window.DCR_CLOUD?'Sign in above to see the leaderboard and brag wall, and to post your own big moments.':'Leaderboards and the brag wall need you signed in to Claude. Friends you share this app with (from the Share menu) show up here.';return}
   const rows=SOC.players.slice().sort((a,b)=>(b.bank||0)-(a.bank||0));
   const ids=rows.map(r=>r.id);const ps=await nameMap(ids);
   const nm=id=>(ps[id]&&ps[id].name)||'Someone',av=id=>ps[id]?ps[id].avatarUrl:'';
@@ -2909,6 +2918,15 @@ function wireChart(){
   const out=()=>{$('bcX').setAttribute('visibility','hidden');$('bcD').setAttribute('visibility','hidden');$('bcTip').hidden=true};
   hit.addEventListener('pointermove',move);hit.addEventListener('pointerdown',move);hit.addEventListener('pointerleave',out);
 }
+const LO={tab:'rewards'};try{const t=localStorage.getItem('dcr_lotab');if(['rewards','progress','friends','style','settings'].includes(t))LO.tab=t}catch(e){}
+function setLoTab(t){LO.tab=t;try{localStorage.setItem('dcr_lotab',t)}catch(e){}renderLoTabs();window.scrollTo({top:0})}
+function renderLoTabs(){
+  const acct=$('acct');if(acct&&!acct.dataset.lt){const ref=$('lo').querySelector('.panel[data-lt="friends"]:not(#acct)');acct.dataset.lt='friends';if(ref)$('lo').insertBefore(acct,ref)}
+  document.querySelectorAll('#lo>.panel').forEach(p=>{const show=(p.dataset.lt||'rewards')===LO.tab;p.classList.toggle('lohide',!show)});
+  document.querySelectorAll('#loSeg button').forEach(b=>{b.setAttribute('aria-pressed',b.dataset.lt===LO.tab);b.classList.toggle('hasdot',b.dataset.lt==='rewards'&&!dailyState().claimed)});
+}
+document.querySelectorAll('#loSeg button').forEach(b=>b.onclick=()=>{if(b.dataset.lt!==LO.tab){sfx('chip');setLoTab(b.dataset.lt)}});
+new MutationObserver(()=>{if($('acct')&&!$('acct').dataset.lt)renderLoTabs()}).observe($('lo'),{childList:true});
 function renderLounge(){
   const st=dailyState();
   $('dailyBox').innerHTML=`<div class="streak" aria-label="Daily streak">${[1,2,3,4,5,6,7].map(n=>{const done=st.claimed?n<=st.streak:n<st.streak;const nx=!st.claimed&&n===Math.min(st.streak,7);return `<span class="${done?'on':nx?'next':''}">${fmt(DAILY(n))}</span>`}).join('')}</div>`+
@@ -2942,7 +2960,7 @@ function renderLounge(){
     const bio={Rosa:'Tight and patient. Goes quiet when she has a big hand.',Dutch:'Loud, loves to bluff, hates to lose.',Mei:'Sharp, plays the odds, never lets you forget a bad fold.'}[n];
     return `<p style="margin:0 0 8px"><b style="color:var(--ivory)">${n}</b> · ${bio}<br>${m&&m.hands?`${fmt(m.hands)} hands together · ${m.net>0?`${n} is up ${fmt(m.net)} on you`:m.net<0?`you’re up ${fmt(-m.net)} on ${n}`:'dead even'} · last seen ${whenStr(m.last).replace(/^on /,'').replace('earlier','today').replace('last time','a while ago')}`:'You haven’t played together yet.'}</p>`}).join('')+
     (extra.length?`<p class="sub">Unlocked chips: ${extra.join(' · ')}</p>`:'');
-  renderBank();renderTabs();
+  renderLoTabs();renderBank();renderTabs();
 }
 document.querySelectorAll('#ambSeg button').forEach(b=>b.onclick=()=>{setAmb(b.dataset.amb==='on');if(ambOn)ac()});
 document.querySelectorAll('#hapSeg button').forEach(b=>b.onclick=()=>{setHap(b.dataset.hap==='on');renderLounge()});
@@ -2952,7 +2970,7 @@ function renderProPanel(){
   p.innerHTML=`<h2>Deuce Pro</h2><p class="sub">Every game, daily chips, achievements and the friends table stay free. Pro adds:</p>
     <ul class="prolist"><li><b>Blackjack strategy coach</b> with hints and a score</li><li><b>Sports-venue tables</b>: rink, field, court, green and diamond</li><li><b>Every felt, card back and stake</b> right away, no VIP wait</li><li><b>Bank history chart</b> with every high and low</li></ul>
     <div class="row" style="justify-content:flex-start"><button class="btn primary" disabled>Coming soon</button></div>
-    <p class="sub">Already have Pro? Sign in to your account at the top of the Lounge.</p>`;
+    <p class="sub">Already have Pro? Sign in under Lounge → Friends.</p>`;
 }
 document.addEventListener('click',e=>{const b=e.target.closest('[data-pro]');if(!b)return;e.stopPropagation();showPro()},true);
 $('lo').addEventListener('click',e=>{
