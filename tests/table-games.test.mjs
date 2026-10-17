@@ -214,3 +214,17 @@ test('names every Jacks or Better payout', () => {
   assert.equal(vpHand(hand('Qs', 'Qh', '3d', '7c', '9s')).mult, 1);
   assert.equal(vpHand(hand('7s', '7h', '7d', '2c', '2s')).mult, 9);
 });
+
+test('video poker hold advice picks the standard plays', () => {
+  const { vpAdvice } = DCR;
+  const held = (...codes) => plain(vpAdvice(hand(...codes)).hold).map((h, i) => (h ? codes[i] : null)).filter(Boolean);
+  assert.deepEqual(held('5s', '6h', '7d', '8c', '9s'), ['5s', '6h', '7d', '8c', '9s']); // made straight
+  assert.deepEqual(held('10h', 'Jh', 'Qh', 'Kh', '3c'), ['10h', 'Jh', 'Qh', 'Kh']); // 4 to a royal
+  assert.deepEqual(held('Js', 'Jh', '3d', '7c', '9s'), ['Js', 'Jh']); // high pair
+  assert.deepEqual(held('2h', '7h', '9h', 'Jh', '3c'), ['2h', '7h', '9h', 'Jh']); // 4 to a flush
+  assert.deepEqual(held('4s', '4h', '9d', 'Kc', '2s'), ['4s', '4h']); // low pair beats one high card
+  assert.deepEqual(held('5s', '6h', '7d', '8c', 'Kd'), ['5s', '6h', '7d', '8c']); // open-ended straight draw
+  assert.deepEqual(held('Qs', 'Kh', '3d', '7c', 'Ad'), ['Qs', 'Kh']); // two lowest high cards
+  assert.deepEqual(held('Qs', 'Kh', '3d', '7c', 'As'), ['Qs', 'As']); // suited high cards first
+  assert.deepEqual(held('2s', '4h', '7d', '9c', '10s'), []); // draw five
+});
