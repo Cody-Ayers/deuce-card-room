@@ -2,12 +2,12 @@
   "appId": "com.codyayers.deucecardroom",
   "appName": "Deuce Card Room",
   "webDir": "www",
-  "backgroundColor": "#2a0a17",
+  "backgroundColor": "#0e1311",
   "ios": {
     "contentInset": "never",
-    "backgroundColor": "#2a0a17"
+    "backgroundColor": "#0e1311"
   },
   "android": {
-    "backgroundColor": "#2a0a17"
+    "backgroundColor": "#0e1311"
   }
 }

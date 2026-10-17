@@ -2,16 +2,17 @@
   "name": "deuce-card-room",
   "version": "1.0.0",
   "private": true,
-  "description": "Blackjack, Texas Hold'em and Craps as an installable web app.",
+  "description": "Blackjack, Hold'em, Craps, Roulette, Three Card Poker, Baccarat and Video Poker as an installable app.",
   "type": "module",
   "scripts": {
     "test": "node --test \"tests/*.test.mjs\"",
     "build:www": "node scripts/build-www.mjs",
     "ios": "npm run build:www && npx cap sync ios && npx cap open ios",
-    "ios:icons": "npx @capacitor/assets generate --ios --iconBackgroundColor '#2a0a17' --splashBackgroundColor '#2a0a17'"
+    "ios:icons": "npx @capacitor/assets generate --ios --iconBackgroundColor '#2a0a17' --splashBackgroundColor '#0e1311'"
   },
   "dependencies": {
     "@capacitor/core": "^8.5.3",
+    "@capacitor/haptics": "^8.0.0",
     "@capacitor/ios": "^8.5.3",
     "@capacitor/status-bar": "^8.0.4",
     "@supabase/supabase-js": "^2.110.1"

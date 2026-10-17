@@ -18,7 +18,7 @@ fi
 echo "Using Node $(node -v)"
 
 npm install
-npm install @capacitor/core @capacitor/ios @capacitor/status-bar
+npm install @capacitor/core @capacitor/ios @capacitor/status-bar @capacitor/haptics
 npm install -D @capacitor/cli @capacitor/assets
 npm run build:www
 [ -d ios ] || npx cap add ios --packagemanager SPM
