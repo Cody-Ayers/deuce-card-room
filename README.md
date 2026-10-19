@@ -6,6 +6,8 @@ Blackjack, Texas Hold'em, Craps, Roulette, Three Card Poker, Baccarat and Video 
 
 **▶ Play:** https://cody-ayers.github.io/deuce-card-room/
 
+> **How it was built:** I designed this app and built it with AI-assisted development using [Claude Code](https://claude.com/claude-code). I decided the features and rules, tested it, and directed each change.
+
 <p align="center"><img src="docs/gameplay.gif" alt="Placing a bet, getting the strategy coach's advice and finishing a blackjack hand" width="300"></p>
 
 | Blackjack | Hold'em | Craps | Lounge |
