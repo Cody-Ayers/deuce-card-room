@@ -1,0 +1,34 @@
+name: Keep Supabase awake
+
+# Free Supabase projects pause after about a week without activity, which
+# would turn off sign-in, cloud saves, the leaderboard and the live table.
+# This sends one read-only request every 3 days so the project stays up.
+on:
+  schedule:
+    - cron: "0 16 */3 * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Query the database
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          body=$(curl -sS -w '\n%{http_code}' \
+            "$SUPABASE_URL/rest/v1/players?select=user_id&limit=1" \
+            -H "apikey: $SUPABASE_PUBLISHABLE_KEY")
+          status=$(echo "$body" | tail -n 1)
+          echo "HTTP $status"
+
+          # Signed out, row-level security returns an empty list ([]), but the
+          # request still reached the database, which is what counts as activity.
+          if [ "$status" = "200" ] || echo "$body" | grep -q '"42501"'; then
+            echo "Supabase is awake"
+          else
+            echo "$body"
+            exit 1
+          fi
